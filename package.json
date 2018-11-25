@@ -1,0 +1,34 @@
+{
+  "name": "hubot-chat-testing",
+  "description": "A simple suite for making the tests more straight-forward and easier to read",
+  "version": "0.0.0-development",
+  "author": "Dorian Krefft <dorian.krefft@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "hubot",
+    "hubot-scripts"
+  ],
+  "engines": {
+    "node": ">=8.x",
+    "npm": ">=5.x"
+  },
+  "repository": "git@gitlab.com:TheDeeM/hubot-meal-orders.git",
+  "dependencies": {
+    "coffeescript": "^2.2.2",
+    "hubot": "3",
+    "chai": "^3.5.0",
+    "co": "latest",
+    "coveralls": "^2.13.1",
+    "mocha": "^3.0.2",
+    "hubot-test-helper": "^1.8.1",
+    "nyc": "^11.0.3"
+  },
+  "devDependencies": {
+    "dotenv": "^5.0.1"
+  },
+  "main": "bin/hubot",
+  "scripts": {
+    "shell": "node -r dotenv/config node_modules/hubot/bin/hubot.js -a shell",
+    "test": "nyc --reporter=html --reporter=text mocha"
+  }
+}
