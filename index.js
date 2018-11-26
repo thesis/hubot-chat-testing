@@ -19,7 +19,9 @@ class Chat {
             thenBotReplies: function(message){
                 const lastMessageIndex = self.userMessages.length - 1;
                 const user = self.userMessages[lastMessageIndex].user;
-                self.robotReplies[lastMessageIndex] = `@${user} ${message}`;
+                let botReplies = self.robotReplies[lastMessageIndex] || [];
+                botReplies.push(`@${user} ${message}`);
+                self.robotReplies[lastMessageIndex] = botReplies;
                 return self.doChain();
             },
             user: function(username){
@@ -85,7 +87,9 @@ class Chat {
                 for(let i = 0; i < userMessages.length; i++){
                     result.push([userMessages[i].user, userMessages[i].message]);
                     if(robotReplies[i] != null){
-                        result.push([self.robotName, robotReplies[i]]);
+                        for(const botReply of robotReplies[i]){
+                            result.push([self.robotName, botReply]);
+                        }
                     }
                 }
                 return result;
