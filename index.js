@@ -20,7 +20,15 @@ class Chat {
                 const lastMessageIndex = self.userMessages.length - 1;
                 const user = self.userMessages[lastMessageIndex].user;
                 let botReplies = self.robotReplies[lastMessageIndex] || [];
-                botReplies.push(`@${user} ${message}`);
+                botReplies.push({message: `@${user} ${message}`});
+                self.robotReplies[lastMessageIndex] = botReplies;
+                return self.doChain();
+            },
+            thenBotReplyMatches: function(regex){
+                const lastMessageIndex = self.userMessages.length - 1;
+                const user = self.userMessages[lastMessageIndex].user;
+                let botReplies = self.robotReplies[lastMessageIndex] || [];
+                botReplies.push({regex});
                 self.robotReplies[lastMessageIndex] = botReplies;
                 return self.doChain();
             },
@@ -65,11 +73,23 @@ class Chat {
 
             it(summary, function() {
                 const expectedMessages = generateExpectedMessages(self.userMessages, self.robotReplies);
-                this.logger.debug(`Running test '${self.context} ${summary}'.\nExpected messages: ${JSON.stringify(expectedMessages)}.\nActual messages:   ${JSON.stringify(this.room.messages)}`);
+                const actuaalMessages = this.room.messages;
+                this.logger.debug(`Running test '${self.context} ${summary}'.\nExpected messages: ${JSON.stringify(expectedMessages)}.\nActual messages:   ${JSON.stringify(actuaalMessages)}`);
 
-                expect(this.room.messages.length).to.eql(expectedMessages.length);
+                expect(actuaalMessages.length).to.eql(expectedMessages.length);
                 for(let i = 0; i < expectedMessages.length; i++){
-                    expect(this.room.messages[i]).to.eql(expectedMessages[i]);
+                    const expectedMessage = expectedMessages[i];
+                    const message = {user: this.room.messages[i][0], message: this.room.messages[i][1]};
+
+                    if(expectedMessage.message != null){
+                        expect(message).to.eql({user: expectedMessage.user, message: expectedMessage.message},
+                            'The message in the chat history does not match');
+                    }
+                    else if(expectedMessage.regex != null){
+                        expect(message.user).to.eql(expectedMessage.user, 'The user for this message does not match');
+                        expect(message.message).to.match(expectedMessage.regex,
+                            'The message in the chat history does not match provided regex');
+                    }
                 }
             });
 
@@ -85,10 +105,10 @@ class Chat {
             function generateExpectedMessages(userMessages, robotReplies){
                 let result = [];
                 for(let i = 0; i < userMessages.length; i++){
-                    result.push([userMessages[i].user, userMessages[i].message]);
+                    result.push({user: userMessages[i].user, message: userMessages[i].message});
                     if(robotReplies[i] != null){
                         for(const botReply of robotReplies[i]){
-                            result.push([self.robotName, botReply]);
+                            result.push({user: self.robotName, regex: botReply.regex, message: botReply.message});
                         }
                     }
                 }
