@@ -11,6 +11,7 @@ class Chat {
         this.robotReplies = {};
         this.robotReplyDelay = options.robotReplyDelay || 50;
         this.context = context;
+        this.additionalExpectations = null;
     }
 
     doChain(){
@@ -49,6 +50,14 @@ class Chat {
                       return self.doChain();
                   }
               }
+            },
+            expect: function(f){
+                self.additionalExpectations = f;
+                return {
+                    itShouldResultWith: function(summary){
+                        self.createTestSuite(summary)
+                    }
+                }
             },
             itShouldResultWith: function(summary){
                 self.createTestSuite(summary)
@@ -102,6 +111,11 @@ class Chat {
                         expect(message.message).to.include(expectedMessage.include,
                             'The message in the chat history does not include provided message');
                     }
+                }
+
+                if(self.additionalExpectations != null){
+                    this.logger.debug(`Running provided additional expectations for the test '${self.context} ${summary}'`);
+                    self.additionalExpectations(this);
                 }
             });
 
