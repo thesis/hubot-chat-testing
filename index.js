@@ -73,13 +73,14 @@ class Chat {
 
             it(summary, function() {
                 const expectedMessages = generateExpectedMessages(self.userMessages, self.robotReplies);
-                const actuaalMessages = this.room.messages;
-                this.logger.debug(`Running test '${self.context} ${summary}'.\nExpected messages: ${JSON.stringify(expectedMessages)}.\nActual messages:   ${JSON.stringify(actuaalMessages)}`);
+                const actualMessages = this.room.messages;
+                this.logger.debug(`Running test '${self.context} ${summary}'.\nExpected messages: ${JSON.stringify(expectedMessages)}.\nActual messages:   ${JSON.stringify(actualMessages)}`);
 
-                expect(actuaalMessages.length).to.eql(expectedMessages.length);
+                expect(actualMessages.length).to.eql(expectedMessages.length,
+                    'The amount of messages should be the same as expected');
                 for(let i = 0; i < expectedMessages.length; i++){
                     const expectedMessage = expectedMessages[i];
-                    const message = {user: this.room.messages[i][0], message: this.room.messages[i][1]};
+                    const message = {user: actualMessages[i][0], message: actualMessages[i][1]};
 
                     if(expectedMessage.message != null){
                         expect(message).to.eql({user: expectedMessage.user, message: expectedMessage.message},
