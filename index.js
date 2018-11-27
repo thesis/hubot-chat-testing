@@ -26,9 +26,15 @@ class Chat {
             },
             thenBotReplyMatches: function(regex){
                 const lastMessageIndex = self.userMessages.length - 1;
-                const user = self.userMessages[lastMessageIndex].user;
                 let botReplies = self.robotReplies[lastMessageIndex] || [];
                 botReplies.push({regex});
+                self.robotReplies[lastMessageIndex] = botReplies;
+                return self.doChain();
+            },
+            thenBotReplyIncludes: function(message){
+                const lastMessageIndex = self.userMessages.length - 1;
+                let botReplies = self.robotReplies[lastMessageIndex] || [];
+                botReplies.push({include: message});
                 self.robotReplies[lastMessageIndex] = botReplies;
                 return self.doChain();
             },
@@ -91,6 +97,11 @@ class Chat {
                         expect(message.message).to.match(expectedMessage.regex,
                             'The message in the chat history does not match provided regex');
                     }
+                    else if(expectedMessage.include != null){
+                        expect(message.user).to.eql(expectedMessage.user, 'The user for this message does not match');
+                        expect(message.message).to.include(expectedMessage.include,
+                            'The message in the chat history does not include provided message');
+                    }
                 }
             });
 
@@ -109,7 +120,12 @@ class Chat {
                     result.push({user: userMessages[i].user, message: userMessages[i].message});
                     if(robotReplies[i] != null){
                         for(const botReply of robotReplies[i]){
-                            result.push({user: self.robotName, regex: botReply.regex, message: botReply.message});
+                            result.push({
+                                user: self.robotName,
+                                regex: botReply.regex,
+                                message: botReply.message,
+                                include: botReply.include
+                            });
                         }
                     }
                 }
