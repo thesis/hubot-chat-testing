@@ -7,8 +7,9 @@ describe('Testing the adding messages API', () => {
     /**
      * @param this.userMessages    Array of the messages that users are sending to the bot or the room
      * @param this.botMessages     Array of the bot responses
-     * @param this.chat.when            Method starting the new hubot testing suite
+     * @param this.chat.when       Method starting the new hubot testing suite
     */
+    // We are using .get method here only to test the module's behaviour. Normally you would just use .when()
     beforeEach(() => {
        this.chat = HubotChat.get();
        this.userMessages = this.chat.chat.userMessages;

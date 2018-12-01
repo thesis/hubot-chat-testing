@@ -11,18 +11,20 @@ it manages the bot and the room creation and it allows for adding new messages t
 The biggest problem - for me - is the readability for those tests. Let's use an example:
 
 ```javascript
-context('Passing a custom text message object', function() {
+context('testing good manners of the bot', function() {
     beforeEach(function() {
       return co(function*() {
-        const textMessage = new Hubot.TextMessage({}, '');
-        textMessage.isCustom = true;
-        textMessage.custom = 'custom';
-        yield this.room.user.say('user', textMessage);
+        yield this.room.user.say('user', 'hubot hi');
+        // maybe some promise with delaying the response...?
+        yield this.room.user.say('user2', 'hi');
       }.bind(this));
     });
 
-    it('sends back', function() {
-      expect(this.room.messages[1][1]).to.be.equal('custom');
+    it('should be polite and say hi when user is greeting', function() {
+      expect(this.room.messages[0]).to.be.eql(['user', 'hubot hi']);
+      expect(this.room.messages[1]).to.be.eql(['hubot', '@user hi']);
+      expect(this.room.messages[2]).to.be.eql(['user2', 'hi']);
+      expect(this.room.messages[3]).to.be.eql(['hubot', '@user2 hi']);
     });
 });
 ```
@@ -61,42 +63,55 @@ npm install git+https://gitlab.com/TheDeeM/hubot-chat-testing.git
 ```
 then all you have to do is to require the library and set-up the `hubot-test-helper` helper:
 ```javascript
-const HubotChat = require('hubot-chat-testing');
+const HubotChatTesting = require('hubot-chat-testing');
 const Helper = require('hubot-test-helper');
-const chat = new HubotChat('hubot', new Helper('../scripts/my-script.js'));
+
+const chat = new HubotChatTesting('hubot', new Helper('../scripts/orders.js'));
 ```
 
 ### Writing the tests
 Typical flow of the conversation:
 ```javascript
- chat.context('Testing manners of the bot')
+ chat.when('testing good manners of the bot')
     .user('user').messagesBot('hi')                // User: hubot hi
-    .thenBotReplies('hi')                          // Hubot: @user hi
+    .bot.repliesWith('hi')                         // Hubot: @user hi
     .user('user2').messagesBot('hi')               // User2: @hubot hi
-    .thenBotReplies('hi')                          // Hubot: @user2 hi
+    .bot.repliesWith('hi')                         // Hubot: @user2 hi
     .user('user').messagesRoom('hello everyone')   // User: hello everyone
-    .thenBotReplies('hi')                          // Hubot: @user hi
-    .itShouldResultWith('should be polite and say hi when user is greeting');
+    .bot.repliesWith('hi')                         // Hubot: @user hi
+    .expect('the bot should be polite and say hi when user is greeting');
 ```
 
 If you don't want to check the whole response of the bot, but instead you just need to 
 check whether the response matches some regexp:
 ```javascript
- chat.context('When the user appears after years of absence')
+ chat.when('the user appears after years of absence')
     .user('user').messagesRoom('hi father')
     // Lets assume that bot normally says "No, I am your father!" to "hi father"
-    .thenBotReplyMatches(/(Luke|No), I am your father/)
-    .itShouldResultWith('the bot should tell the user the truth');
+    .bot.replyMatches(/(Luke|No), I am your father/)
+    .expect('the bot should tell the user the truth');
 ```
 
 If the bot feels very talkative, you can just use:
 ```javascript
- chat.context('when the user is greeting in the room')
+ chat.when('the user is greeting in the room')
     .user('user').messagesRoom('hi')
-    .thenBotReplies('Have I met you before? Let me think...')
-    .thenBotReplies('Oh yes, now I remember! You\'re that guy the admin told me to worry about!')
-    .itShouldResultWith('the bot should react to it with some chit-chat');
+    .bot.repliesWith('Have I met you before? Let me think...')
+    .bot.repliesWith('Oh yes, now I remember! You\'re that guy the admin told me to worry about!')
+    .expect('the bot should react to it with some chit-chat');
 ```
+
+If you want to perform multiple checks for single bot's response:
+```javascript
+chat.when('the user asks for a very complex answer')
+    .user('user').messagesBot('say dirty things to me')
+    .bot.replyIncludes('Lorem ipsum dolor sit amet,')
+        .and.itMatches(/mattis sit amet dolor$/i)
+        .and.itIncludes('Etiam aliquet sagittis')
+    .expect('the bot should react to it with some chit-chat');
+```
+
+For more examples, please give the [tests](test) a try.
 
 ## Contribution
 I am willing to greet any contributions that would make testing Hubot's scripts even more readable.
