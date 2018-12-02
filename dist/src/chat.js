@@ -4,8 +4,6 @@ const chat_messages_1 = require("./chat-messages");
 const test_worker_1 = require("./test-worker");
 class Chat {
     constructor(robotName = 'hubot', helper, options) {
-        this.settingBrainFunction = undefined;
-        this.additionalExpectations = undefined;
         this.context = 'The context string was not provided!';
         this.robotName = robotName;
         this.helper = helper;
@@ -24,7 +22,8 @@ class Chat {
             setBrain: function (f) {
                 self.settingBrainFunction = f;
                 return mainChain;
-            }
+            },
+            additionalExpectations: mainChain.additionalExpectations
         };
     }
     mainChatChain() {
@@ -34,7 +33,13 @@ class Chat {
                 return self.userPossibilities(username);
             },
             bot: self.botPossibilities(),
-            expect: self.generateHubotTests(self.context)
+            expect: self.generateHubotTests(self.context),
+            additionalExpectations: function (f) {
+                self.additionalExpectations = f;
+                return {
+                    expect: self.generateHubotTests(self.context)
+                };
+            }
         };
     }
     extendedBotChain(reply) {
@@ -44,7 +49,8 @@ class Chat {
             bot: mainChain.bot,
             user: mainChain.user,
             and: self.generateBotAndChain(reply),
-            expect: mainChain.expect
+            expect: mainChain.expect,
+            additionalExpectations: mainChain.additionalExpectations
         };
     }
     generateBotAndChain(reply) {
@@ -130,7 +136,7 @@ class Chat {
                     test_worker_1.TestWorker.performExpectations(this, self.userMessages, self.botMessages);
                     if (self.additionalExpectations != null) {
                         this.logger.debug(`Starting user-defined function with additional expectations...`);
-                        self.additionalExpectations(this);
+                        self.additionalExpectations(this, this.logger);
                     }
                 });
             });

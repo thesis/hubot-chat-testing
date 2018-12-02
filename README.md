@@ -130,6 +130,20 @@ chat.when('the bot should remember something')
     .user('user').messagesBot('tell me the value of variable')
     .bot.repliesWith('The value of the variable is "hello wolrd"');
 ```
+
+... and if you still need something more complex than this module's API, you can also define your own expectations that
+will fire after the default ones:
+```javascript
+const expect = require('chai').expect;
+chat.when('the user is asking for something very complex')
+    .user('user').messagesBot('cmon, do something')
+    .bot.repliesWith('*does*')
+    .additionalExpectations((test, logger) => {
+        logger.debug(`You can access the logger by using the optional parameter logger`);
+        expect(test.room.messages[1]).to.not.eql('simple')
+    })
+    .expect('the bot should do it')
+```
 For more examples, please give the [tests](test) a try.
 
 ## Contribution

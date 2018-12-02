@@ -6,8 +6,8 @@ import {HubotChatOptions} from "./options";
 export class Chat {
     readonly userMessages: ChatMessage[];
     readonly botMessages: BotMessage[];
-    private settingBrainFunction: ((brain: any) => void) | undefined = undefined;
-    private additionalExpectations: ((test: any) => void) | undefined = undefined;
+    private settingBrainFunction?: ((brain: any) => void) | undefined;
+    private additionalExpectations?: ((test: any, logger?: any) => void);
     private context: string = 'The context string was not provided!';
     private readonly robotName: string;
     private readonly helper: any;
@@ -33,7 +33,8 @@ export class Chat {
             setBrain: function(f: (brain: any) => void){
                 self.settingBrainFunction = f;
                 return mainChain;
-            }
+            },
+            additionalExpectations: mainChain.additionalExpectations
         };
     }
 
@@ -44,7 +45,13 @@ export class Chat {
                 return self.userPossibilities(username);
             },
             bot: self.botPossibilities(),
-            expect: self.generateHubotTests(self.context)
+            expect: self.generateHubotTests(self.context),
+            additionalExpectations: function(f: (test: any, logger: any) => void){
+                self.additionalExpectations = f;
+                return {
+                    expect: self.generateHubotTests(self.context)
+                };
+            }
         }
     }
 
@@ -55,7 +62,8 @@ export class Chat {
             bot: mainChain.bot,
             user: mainChain.user,
             and: self.generateBotAndChain(reply),
-            expect: mainChain.expect
+            expect: mainChain.expect,
+            additionalExpectations: mainChain.additionalExpectations
         };
     }
 
@@ -150,7 +158,7 @@ export class Chat {
                     TestWorker.performExpectations(this, self.userMessages, self.botMessages);
                     if(self.additionalExpectations != null){
                         this.logger.debug(`Starting user-defined function with additional expectations...`);
-                        self.additionalExpectations(this);
+                        self.additionalExpectations(this, this.logger);
                     }
                 });
             });

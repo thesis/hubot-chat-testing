@@ -13,9 +13,12 @@ export interface ExtendedBotChatChain extends MainChatChain {
         itIncludes: (messagePart: string) => ExtendedBotChatChain;
     };
 }
-export interface MainChatChain {
+export interface MainChatChain extends FinishingStep {
     user: (username: string) => UserChatChain;
     bot: BotChatChain;
+    additionalExpectations: (f: (test: any, logger?: any) => void) => FinishingStep;
+}
+export interface FinishingStep {
     expect: (summary: string) => void;
 }
 export interface FirstChatChain extends MainChatChain {

@@ -4,8 +4,8 @@ import { HubotChatOptions } from "./options";
 export declare class Chat {
     readonly userMessages: ChatMessage[];
     readonly botMessages: BotMessage[];
-    private settingBrainFunction;
-    private additionalExpectations;
+    private settingBrainFunction?;
+    private additionalExpectations?;
     private context;
     private readonly robotName;
     private readonly helper;
