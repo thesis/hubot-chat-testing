@@ -14,7 +14,7 @@
     "node": ">=8.x",
     "npm": ">=5.x"
   },
-  "repository": "git@gitlab.com:TheDeeM/hubot-meal-orders.git",
+  "repository": "git@gitlab.com:TheDeeM/hubot-chat-testing.git",
   "dependencies": {
     "@types/chai": "^4.1.7",
     "chai": "^3.5.0",
