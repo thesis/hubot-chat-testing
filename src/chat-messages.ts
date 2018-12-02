@@ -1,10 +1,19 @@
-export class ChatMessage {
+export class SimpleMessage {
     user: string;
     message: string;
 
     constructor(user: string, message: string){
         this.user = user;
         this.message = message;
+    }
+}
+
+export class ChatMessage extends SimpleMessage{
+    delay: number;
+
+    constructor(user: string, message: string, delay: number){
+        super(user, message);
+        this.delay = delay;
     }
 }
 

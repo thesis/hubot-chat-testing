@@ -111,6 +111,16 @@ chat.when('the user asks for a very complex answer')
     .expect('the bot should react to it with some chit-chat');
 ```
 
+If the bot needs time to compute an answer, you can increase the waiting time by using:
+```javascript
+// this delay will be used by default in all test scenarios
+const chat = new HubotChatTesting('hubot', new Helper('../scripts/orders.js'), {answerDelay: 50}); 
+
+// this delay will be used in this specific test scenario
+chat.when('the user asks for a very complex answer', {answerDelay: 200}) 
+    .user('user').messagesBot('a very intriguing message', 400) // only this request will wait 400 ms for an answer
+```
+
 For more examples, please give the [tests](test) a try.
 
 ## Contribution

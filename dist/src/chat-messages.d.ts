@@ -1,7 +1,11 @@
-export declare class ChatMessage {
+export declare class SimpleMessage {
     user: string;
     message: string;
     constructor(user: string, message: string);
+}
+export declare class ChatMessage extends SimpleMessage {
+    delay: number;
+    constructor(user: string, message: string, delay: number);
 }
 export declare enum BotMessageExpectations {
     MATCH = 1,

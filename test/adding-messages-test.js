@@ -22,7 +22,7 @@ describe('Testing the adding messages API', () => {
                 .user('user').messagesBot('test message');
 
             expect(this.userMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
-            expect(this.userMessages[0]).to.deep.eql({user: 'user', 'message' : 'hubot test message'},
+            expect(this.userMessages[0]).to.deep.eql({user: 'user', 'message' : 'hubot test message', delay: 50},
                 'The user message stored in the chat is not correct');
 
         });
@@ -32,7 +32,7 @@ describe('Testing the adding messages API', () => {
                 .user('user').messagesRoom('test message');
 
             expect(this.userMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
-            expect(this.userMessages[0]).to.deep.eql({user: 'user', 'message' : 'test message'},
+            expect(this.userMessages[0]).to.deep.eql({user: 'user', 'message' : 'test message', delay: 50},
                 'The user message stored in the chat is not correct');
 
         });
@@ -43,9 +43,9 @@ describe('Testing the adding messages API', () => {
                 .user('user2').messagesBot('test message 2');
 
             expect(this.userMessages.length).to.eql(2, 'The amount of messages in the chat is not correct');
-            expect(this.userMessages[0]).to.deep.eql({user: 'user', 'message' : 'test message'},
+            expect(this.userMessages[0]).to.deep.eql({user: 'user', 'message' : 'test message', delay: 50},
                 'The first user message stored in the chat is not correct');
-            expect(this.userMessages[1]).to.deep.eql({user: 'user2', 'message' : 'hubot test message 2'},
+            expect(this.userMessages[1]).to.deep.eql({user: 'user2', 'message' : 'hubot test message 2', delay: 50},
                 'The second user message stored in the chat is not correct');
         });
     });
@@ -59,7 +59,7 @@ describe('Testing the adding messages API', () => {
             expect(this.botMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
             expect(this.botMessages[0].messages).to.deep.eql([{expectation: '@user hi', type: 0}],
                 'The bot reply stored in the chat should have proper expectations');
-            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi'},
+            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi', delay: 50},
                 'The bot reply stored in the chat should address proper user message');
         });
 
@@ -71,7 +71,7 @@ describe('Testing the adding messages API', () => {
             expect(this.botMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
             expect(this.botMessages[0].messages).to.deep.eql([{expectation: /hi/, type: 1}],
                 'The bot reply stored in the chat should have proper expectations');
-            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi'},
+            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi', delay: 50},
                 'The bot reply stored in the chat should address proper user message');
         });
 
@@ -83,7 +83,7 @@ describe('Testing the adding messages API', () => {
             expect(this.botMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
             expect(this.botMessages[0].messages).to.deep.eql([{expectation: /hi/, type: 1}],
                 'The bot reply stored in the chat should have proper expectations');
-            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi'},
+            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi', delay: 50},
                 'The bot reply stored in the chat should address proper user message');
         });
 
@@ -95,7 +95,7 @@ describe('Testing the adding messages API', () => {
             expect(this.botMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
             expect(this.botMessages[0].messages).to.deep.eql([{expectation: 'hi', type: 2}],
                 'The bot reply stored in the chat should have proper expectations');
-            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi'},
+            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi', delay: 50},
                 'The bot reply stored in the chat should address proper user message');
         });
 
@@ -107,7 +107,7 @@ describe('Testing the adding messages API', () => {
             expect(this.botMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
             expect(this.botMessages[0].messages).to.deep.eql([{expectation: 'hi', type: 2}, {expectation: /@user/, type: 1}],
                 'The bot reply stored in the chat should have proper expectations');
-            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi'},
+            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi', delay: 50},
                 'The bot reply stored in the chat should address proper user message');
         });
     });
@@ -119,7 +119,7 @@ describe('Testing the adding messages API', () => {
                 .bot.repliesWith('let me ask my good friend with the access to the internet...')
                 .bot.repliesWith('OK, he told me that tomorrow will be quite windy!');
 
-            const userMessageExpectation = {user: 'user', message: 'hubot how is the weather tomorrow?'};
+            const userMessageExpectation = {user: 'user', message: 'hubot how is the weather tomorrow?', delay: 50};
 
             expect(this.botMessages.length).to.eql(2, 'The amount of messages in the chat is not correct');
             expect(this.botMessages[0].messages).to.deep.eql([{expectation: '@user let me ask my good friend with the access to the internet...', type: 0}],
@@ -143,8 +143,8 @@ describe('Testing the adding messages API', () => {
                 .user('user2').messagesRoom('and how about today?')
                 .bot.repliesWith('It seems that today is also sunny.');
 
-            const firstUserMessageExpectation = {user: 'user', message: 'hubot how is the weather tomorrow?'};
-            const secondUserMessageExpectation = {user: 'user2', message: 'and how about today?'};
+            const firstUserMessageExpectation = {user: 'user', message: 'hubot how is the weather tomorrow?', delay: 50};
+            const secondUserMessageExpectation = {user: 'user2', message: 'and how about today?', delay: 50};
 
             expect(this.botMessages.length).to.eql(2, 'The amount of messages in the chat is not correct');
             expect(this.botMessages[0].messages).to.deep.eql([{expectation: '@user Tomorrow will be sunny.', type: 0}],
@@ -169,7 +169,7 @@ describe('Testing the adding messages API', () => {
                 .user('user').messagesBot('how is the weather tomorrow?')
                 .bot.repliesWith('Tomorrow will be sunny.');
 
-            const userMessageExpectation = {user: 'user', message: 'hubot how is the weather tomorrow?'};
+            const userMessageExpectation = {user: 'user', message: 'hubot how is the weather tomorrow?', delay: 50};
 
             expect(this.botMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
             expect(this.botMessages[0].messages).to.deep.eql([{expectation: '@user Tomorrow will be sunny.', type: 0}],
@@ -178,10 +178,41 @@ describe('Testing the adding messages API', () => {
                 'The first bot reply stored in the chat should address proper user message');
 
             expect(this.userMessages.length).to.eql(2, 'The amount of messages in the chat is not correct');
-            expect(this.userMessages[0]).to.deep.eql({user: 'user', message: 'hello everyone'},
+            expect(this.userMessages[0]).to.deep.eql({user: 'user', message: 'hello everyone', delay: 50},
                 'The user message stored in the chat is not correct');
             expect(this.userMessages[1]).to.deep.eql(userMessageExpectation,
                 'The user message stored in the chat is not correct');
+        });
+    });
+
+    context('Testing changing the answers delay', () => {
+        it('should use the default delay on every reply when provided by chat constructor', () => {
+            const answerDelay = 30;
+            this.chat = new HubotChatTesting('hubot', '', {answerDelay}).get();
+            this.userMessages = this.chat.chat.userMessages;
+            this.botMessages = this.chat.chat.botMessages;
+
+            this.chat.when('user sends message and bot replies')
+                .user('user').messagesRoom('hello everyone')
+                .user('user').messagesRoom('how is the weather tomorrow?')
+                .bot.repliesWith('Tomorrow will be sunny.');
+
+            expect(this.userMessages[0]).to.deep.eql({user: 'user', message: 'hello everyone', delay: answerDelay},
+                'The first message by user should use proper delay');
+            expect(this.userMessages[1]).to.deep.eql({user: 'user', message: 'how is the weather tomorrow?', delay: answerDelay},
+                'The second message by user should use proper delay');
+        });
+
+        it('should use the proper delay on specifically selected replies', () => {
+            this.chat.when('user sends message and bot replies')
+                .user('user').messagesRoom('hello everyone', 25)
+                .user('user').messagesRoom('how is the weather tomorrow?', 35)
+                .bot.repliesWith('Tomorrow will be sunny.');
+
+            expect(this.userMessages[0]).to.deep.eql({user: 'user', message: 'hello everyone', delay: 25},
+                'The first message by user should use proper delay');
+            expect(this.userMessages[1]).to.deep.eql({user: 'user', message: 'how is the weather tomorrow?', delay: 35},
+                'The second message by user should use proper delay');
         });
     });
 });

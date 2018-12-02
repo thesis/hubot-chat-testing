@@ -16,7 +16,7 @@ class TestWorker {
             for (const message of userMessages) {
                 test.logger.debug(`Asking the bot with command ${JSON.stringify(message)}`);
                 yield test.room.user.say(message.user, message.message);
-                yield TestWorker.createDelayForRobot(50, test);
+                yield TestWorker.createDelayForRobot(message.delay, test);
             }
         }.bind(test));
     }
@@ -25,7 +25,8 @@ class TestWorker {
         let index = 0;
         for (const userMessage of userMessages) {
             const message = { user: actualMessages[index][0], message: actualMessages[index][1] };
-            chai_1.expect(message).to.eql(userMessage, 'User message does not match the message in the chat history');
+            const expectedMessage = { user: userMessage.user, message: userMessage.message };
+            chai_1.expect(message).to.eql(expectedMessage, 'User message does not match the message in the chat history');
             index++;
             const botReplies = TestWorker.findBotRepliesToMessage(message, botMessages);
             for (const botReply of botReplies) {

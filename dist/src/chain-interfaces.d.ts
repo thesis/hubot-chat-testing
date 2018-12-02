@@ -1,6 +1,6 @@
 export interface UserChatChain {
-    messagesBot: (message: string) => MainChatChain;
-    messagesRoom: (message: string) => MainChatChain;
+    messagesBot: (message: string, delay?: number) => MainChatChain;
+    messagesRoom: (message: string, delay?: number) => MainChatChain;
 }
 export interface BotChatChain {
     repliesWith: (message: string) => ExtendedBotChatChain;

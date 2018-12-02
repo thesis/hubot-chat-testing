@@ -1,6 +1,7 @@
 import {BotMessage, BotMessageExpectations, ChatMessage} from "./chat-messages";
 import {BotChatChain, ExtendedBotChatChain, FirstChatChain, MainChatChain, UserChatChain} from "./chain-interfaces";
 import {TestWorker} from "./test-worker";
+import {HubotChatOptions} from "./options";
 
 export class Chat {
     readonly userMessages: ChatMessage[];
@@ -10,12 +11,14 @@ export class Chat {
     private context: string = 'The context string was not provided!';
     private readonly robotName: string;
     private readonly helper: any;
+    private options: HubotChatOptions;
     
-    constructor(robotName: string = 'hubot', helper: any){
+    constructor(robotName: string = 'hubot', helper: any, options: HubotChatOptions){
         this.robotName = robotName;
         this.helper = helper;
         this.userMessages = [];
         this.botMessages = [];
+        this.options = options;
     }
 
     startChain(context: string) : FirstChatChain {
@@ -95,19 +98,20 @@ export class Chat {
     private userPossibilities(username: string) : UserChatChain{
         const self: Chat = this;
         return {
-            messagesBot: function(message: string){
-                self.addUserMessage(username, `${self.robotName} ${message}`);
+            messagesBot: function(message: string, delay?: number){
+                self.addUserMessage(username, `${self.robotName} ${message}`, delay);
                 return self.mainChatChain();
             },
-            messagesRoom: function(message: string){
-                self.addUserMessage(username, message);
+            messagesRoom: function(message: string, delay?: number){
+                self.addUserMessage(username, message, delay);
                 return self.mainChatChain();
             }
         }
     }
 
-    private addUserMessage(username: string, message: string) : ChatMessage{
-        const msg: ChatMessage = new ChatMessage(username, message);
+    private addUserMessage(username: string, message: string, delay?: number) : ChatMessage{
+        const botDelay = delay || this.options.answerDelay;
+        const msg: ChatMessage = new ChatMessage(username, message, botDelay);
         this.userMessages.push(msg);
         return msg;
     }
