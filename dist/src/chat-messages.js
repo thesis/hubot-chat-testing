@@ -1,9 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class ChatMessage {
+class SimpleMessage {
     constructor(user, message) {
         this.user = user;
         this.message = message;
+    }
+}
+exports.SimpleMessage = SimpleMessage;
+class ChatMessage extends SimpleMessage {
+    constructor(user, message, delay) {
+        super(user, message);
+        this.delay = delay;
     }
 }
 exports.ChatMessage = ChatMessage;

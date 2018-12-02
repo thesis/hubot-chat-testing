@@ -1,4 +1,4 @@
-import {BotMessage, BotMessageExpectations, ChatMessage} from "./chat-messages";
+import {BotMessage, BotMessageExpectations, ChatMessage, SimpleMessage} from "./chat-messages";
 import {expect} from 'chai'
 
 const co = require('co');
@@ -18,7 +18,7 @@ export class TestWorker{
             for(const message of userMessages){
                 test.logger.debug(`Asking the bot with command ${JSON.stringify(message)}`);
                 yield test.room.user.say(message.user, message.message);
-                yield TestWorker.createDelayForRobot(50, test);
+                yield TestWorker.createDelayForRobot(message.delay, test);
             }
         }.bind(test));
     }
@@ -29,7 +29,8 @@ export class TestWorker{
         let index = 0;
         for(const userMessage of userMessages){
             const message = {user: actualMessages[index][0], message: actualMessages[index][1]};
-            expect(message).to.eql(userMessage, 'User message does not match the message in the chat history');
+            const expectedMessage = {user: userMessage.user, message: userMessage.message};
+            expect(message).to.eql(expectedMessage, 'User message does not match the message in the chat history');
             index++;
 
             const botReplies = TestWorker.findBotRepliesToMessage(message, botMessages);
@@ -48,7 +49,7 @@ export class TestWorker{
         });
     }
 
-    private static findBotRepliesToMessage(message: ChatMessage, botMessages: BotMessage[]) : BotMessage[]{
+    private static findBotRepliesToMessage(message: SimpleMessage, botMessages: BotMessage[]) : BotMessage[]{
         let result: BotMessage[] = [];
 
         for(const botMessage of botMessages){
@@ -60,7 +61,7 @@ export class TestWorker{
         return result;
     }
 
-    private static compareBotReplyWithMessage(message: ChatMessage, botReply: BotMessage){
+    private static compareBotReplyWithMessage(message: SimpleMessage, botReply: BotMessage){
         expect(message.user).to.eql(botReply.name, 'The message should be written by bot, but it is not');
 
         for(const expectation of botReply.messages){

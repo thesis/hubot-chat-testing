@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chat_messages_1 = require("./chat-messages");
 const test_worker_1 = require("./test-worker");
 class Chat {
-    constructor(robotName = 'hubot', helper) {
+    constructor(robotName = 'hubot', helper, options) {
         this.settingBrainFunction = undefined;
         this.additionalExpectations = undefined;
         this.context = 'The context string was not provided!';
@@ -11,6 +11,7 @@ class Chat {
         this.helper = helper;
         this.userMessages = [];
         this.botMessages = [];
+        this.options = options;
     }
     startChain(context) {
         const self = this;
@@ -83,18 +84,19 @@ class Chat {
     userPossibilities(username) {
         const self = this;
         return {
-            messagesBot: function (message) {
-                self.addUserMessage(username, `${self.robotName} ${message}`);
+            messagesBot: function (message, delay) {
+                self.addUserMessage(username, `${self.robotName} ${message}`, delay);
                 return self.mainChatChain();
             },
-            messagesRoom: function (message) {
-                self.addUserMessage(username, message);
+            messagesRoom: function (message, delay) {
+                self.addUserMessage(username, message, delay);
                 return self.mainChatChain();
             }
         };
     }
-    addUserMessage(username, message) {
-        const msg = new chat_messages_1.ChatMessage(username, message);
+    addUserMessage(username, message, delay) {
+        const botDelay = delay || this.options.answerDelay;
+        const msg = new chat_messages_1.ChatMessage(username, message, botDelay);
         this.userMessages.push(msg);
         return msg;
     }
