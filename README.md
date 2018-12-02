@@ -59,7 +59,7 @@ about all the technical stuff - you just have to provide chat history.
 
 ### Installing the module
 ```bash
-npm install git+https://gitlab.com/TheDeeM/hubot-chat-testing.git
+npm install hubot-chat-testing
 ```
 then all you have to do is to require the library and set-up the `hubot-test-helper` helper:
 ```javascript
@@ -121,6 +121,15 @@ chat.when('the user asks for a very complex answer', {answerDelay: 200})
     .user('user').messagesBot('a very intriguing message', 400) // only this request will wait 400 ms for an answer
 ```
 
+If you want to set the robot's brain before committing to the test case, just user below example:
+```javascript
+chat.when('the bot should remember something')
+    .setBrain((brain) => {
+       brain.set('variable', 'hello world'); 
+    })
+    .user('user').messagesBot('tell me the value of variable')
+    .bot.repliesWith('The value of the variable is "hello wolrd"');
+```
 For more examples, please give the [tests](test) a try.
 
 ## Contribution
