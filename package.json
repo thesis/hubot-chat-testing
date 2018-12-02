@@ -1,12 +1,15 @@
 {
   "name": "hubot-chat-testing",
   "description": "A simple suite for making the tests more straight-forward and easier to read",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "author": "Dorian Krefft <dorian.krefft@gmail.com>",
   "license": "MIT",
   "keywords": [
     "hubot",
-    "hubot-scripts"
+    "hubot-scripts",
+    "hubot testing",
+    "hubot tests",
+    "hubot chat"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,23 +19,22 @@
   },
   "repository": "git@gitlab.com:TheDeeM/hubot-chat-testing.git",
   "dependencies": {
-    "@types/chai": "^4.1.7",
-    "chai": "^3.5.0",
-    "co": "latest",
+    "chai": "^4.2.0",
+    "co": "^4.6.0",
     "coffeescript": "^2.2.2",
-    "coveralls": "^2.13.1",
-    "hubot": "3",
+    "coveralls": "^3.0.2",
+    "hubot": "3.1.1",
     "hubot-test-helper": "^1.8.1",
-
+    "@types/chai": "^4.1.7",
     "@types/node": "10.12.11",
     "@types/mocha": "5.2.5",
-    "typescript": "latest",
-    "ts-node": "latest"
+    "typescript": "^3.2.1",
+    "ts-node": "^7.0.1"
   },
   "devDependencies": {
-    "dotenv": "^5.0.1",
+    "dotenv": "^6.1.0",
     "mocha": "5.2.0",
-    "nyc": "^11.0.3"
+    "nyc": "^13.1.0"
   },
   "scripts": {
     "prepublish": "npm run build",
