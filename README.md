@@ -42,10 +42,10 @@ This way the chat history seems to be a little unsettled while normally it looks
 between user and bot, similar to "user => bot => user => bot" like so:
 
 ```javascript
-    chat.context('When the user says hi to the bot')
+    chat.when('the user says hi to the bot')
     .user('user').messagesBot('hi')
-    .thenBotReplies('@user hi')
-    .itShouldResultWith('the bot should say hi to the user')
+    .bot.repliesWith('hi')
+    .expect('the bot should say hi to the user')
 ``` 
 
 And this is exactly what I had in mind when writing tests for Hubot scripts. Why writing so much
