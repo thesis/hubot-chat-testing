@@ -1,7 +1,7 @@
 {
   "name": "hubot-chat-testing",
   "description": "A simple suite for making the tests more straight-forward and easier to read",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Dorian Krefft <dorian.krefft@gmail.com>",
   "license": "MIT",
   "keywords": [
