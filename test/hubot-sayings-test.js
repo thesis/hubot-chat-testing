@@ -9,8 +9,8 @@ class NewMockResponse extends Helper.Response {
     }
 }
 /***
- * Test taken from the hubot-encourage module
- * Script: https://github.com/HaroldPutman/hubot-encourage/blob/master/test/index.js
+ * Testing brain usage with hubot-sayings module
+ * Script: https://github.com/gjbianco/hubot-sayings/blob/master/src/hubot-sayings.js
 ***/
 describe('Testing the library with hubot-hello', () => {
     const roomOptions = {response: NewMockResponse};
