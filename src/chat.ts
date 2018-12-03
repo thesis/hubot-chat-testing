@@ -1,5 +1,13 @@
 import {BotMessage, BotMessageExpectations, ChatMessage} from "./chat-messages";
-import {BotChatChain, ExtendedBotChatChain, FirstChatChain, MainChatChain, UserChatChain} from "./chain-interfaces";
+import {
+    BotChatChain,
+    BrainChain,
+    ExtendedBotChatChain, ExtendedBrainChain,
+    FirstChatChain,
+    MainChatChain,
+    UserChatChain,
+    FinishingStep
+} from "./chain-interfaces";
 import {TestWorker} from "./test-worker";
 import {HubotChatOptions} from "./options";
 
@@ -11,7 +19,9 @@ export class Chat {
     private context: string = 'The context string was not provided!';
     private readonly robotName: string;
     private readonly helper: any;
+    private roomOptions?: any;
     private options: HubotChatOptions;
+    private readonly brainExpectations: any;
     
     constructor(robotName: string = 'hubot', helper: any, options: HubotChatOptions){
         this.robotName = robotName;
@@ -19,6 +29,7 @@ export class Chat {
         this.userMessages = [];
         this.botMessages = [];
         this.options = options;
+        this.brainExpectations = {};
     }
 
     startChain(context: string) : FirstChatChain {
@@ -32,26 +43,40 @@ export class Chat {
             expect: mainChain.expect,
             setBrain: function(f: (brain: any) => void){
                 self.settingBrainFunction = f;
-                return mainChain;
+                return self.startChain(context);
             },
+            setRoomOptions: function(roomOptions: any){
+                self.roomOptions = roomOptions;
+                return self.startChain(context);
+            },
+            brain: mainChain.brain,
             additionalExpectations: mainChain.additionalExpectations
         };
     }
 
+    private generateFinishingSteps(context: string) : FinishingStep {
+        const self: Chat = this;
+        const expect = this.generateHubotTests(context);
+        return {
+            additionalExpectations: function(f: (test: any, logger: any) => void){
+                self.additionalExpectations = f;
+                return self.generateFinishingSteps(context);
+            },
+            expect
+        }
+    }
+
     private mainChatChain(): MainChatChain {
         const self: Chat = this;
+        const finishingStep: FinishingStep = this.generateFinishingSteps(this.context);
         return {
             user: function(username: string){
                 return self.userPossibilities(username);
             },
             bot: self.botPossibilities(),
-            expect: self.generateHubotTests(self.context),
-            additionalExpectations: function(f: (test: any, logger: any) => void){
-                self.additionalExpectations = f;
-                return {
-                    expect: self.generateHubotTests(self.context)
-                };
-            }
+            additionalExpectations: finishingStep.additionalExpectations,
+            expect: finishingStep.expect,
+            brain: self.generateBrainChain()
         }
     }
 
@@ -63,7 +88,8 @@ export class Chat {
             user: mainChain.user,
             and: self.generateBotAndChain(reply),
             expect: mainChain.expect,
-            additionalExpectations: mainChain.additionalExpectations
+            additionalExpectations: mainChain.additionalExpectations,
+            brain: mainChain.brain
         };
     }
 
@@ -82,9 +108,39 @@ export class Chat {
         };
     }
 
+    private generateBrainChain() : BrainChain {
+        const self: Chat = this;
+        return {
+            includes: function(key: string, object: any) : ExtendedBrainChain {
+                self.brainExpectations[key] = object;
+                return self.generateExtendedBrainChain();
+            }
+        }
+    }
+
+    private generateExtendedBrainChain(): ExtendedBrainChain {
+        const finishingStep: FinishingStep = this.generateFinishingSteps(this.context);
+        const self: Chat = this;
+        return {
+            and: {
+                itIncludes: function(key: string, object: any) : ExtendedBrainChain {
+                    self.brainExpectations[key] = object;
+                    return self.generateExtendedBrainChain();
+                }
+            },
+            additionalExpectations: finishingStep.additionalExpectations,
+            expect: finishingStep.expect,
+        }
+    }
+
     private botPossibilities(): BotChatChain {
         const self: Chat = this;
         return {
+            messagesRoom: function(message: string) : ExtendedBotChatChain {
+                const msg = `${message}`;
+                const reply = self.addBotMessage(msg, BotMessageExpectations.EQUAL);
+                return self.extendedBotChain(reply);
+            },
             repliesWith: function(message: string) : ExtendedBotChatChain {
                 const lastUserMessage = self.getLastUserMessage();
                 const msg = `@${lastUserMessage.user} ${message}`;
@@ -140,7 +196,7 @@ export class Chat {
         return function(summary: string) : void {
             describe(context, function() {
                 beforeEach(function() {
-                    TestWorker.prepareTest(this, self.helper);
+                    TestWorker.prepareTest(this, self.helper, self.roomOptions);
                     if(self.settingBrainFunction != null){
                         this.logger.debug(`Starting user-defined function that sets up the robot's brain...`);
                         self.settingBrainFunction(this.room.robot.brain);
@@ -156,6 +212,7 @@ export class Chat {
                 it(summary, function() {
                     this.logger.debug(`Running test '${context} ${summary}'. Messages in chat (${this.room.messages.length}):\n${JSON.stringify(this.room.messages)}`);
                     TestWorker.performExpectations(this, self.userMessages, self.botMessages);
+                    TestWorker.performBrainExpectations(this, self.brainExpectations);
                     if(self.additionalExpectations != null){
                         this.logger.debug(`Starting user-defined function with additional expectations...`);
                         self.additionalExpectations(this, this.logger);

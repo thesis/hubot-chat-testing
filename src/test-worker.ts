@@ -4,9 +4,10 @@ import {expect} from 'chai'
 const co = require('co');
 
 export class TestWorker{
-    static prepareTest(test: any, helper: any){
-        test.room = helper.createRoom();
+    static prepareTest(test: any, helper: any, roomOptions?: any){
+        test.room = helper.createRoom(roomOptions);
         test.logger = test.room.robot.logger;
+        test.logger.debug(`Created room with options: ${JSON.stringify(roomOptions)}`)
     }
 
     static finishTest(test: any){
@@ -38,6 +39,21 @@ export class TestWorker{
                 const reply = {user: actualMessages[index][0], message: actualMessages[index][1]};
                 TestWorker.compareBotReplyWithMessage(reply, botReply);
                 index++;
+            }
+        }
+    }
+
+    static performBrainExpectations(test: any, brainExpectations: any){
+        const brain = test.room.robot.brain;
+        const keys = Object.keys(brainExpectations);
+
+        if(keys.length > 0){
+            test.logger.debug(`Checking user expectations of the brain [${keys.join(', ')}]...`);
+            for(const key of keys){
+                const actualValue = brain.get(key);
+                const expectedValue = brainExpectations[key];
+                expect(actualValue).to.deep.eq(expectedValue,
+                    'The object stored in hubot brain does not match assertion')
             }
         }
     }

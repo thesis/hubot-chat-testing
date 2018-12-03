@@ -9,12 +9,17 @@ export declare class Chat {
     private context;
     private readonly robotName;
     private readonly helper;
+    private roomOptions?;
     private options;
+    private readonly brainExpectations;
     constructor(robotName: string | undefined, helper: any, options: HubotChatOptions);
     startChain(context: string): FirstChatChain;
+    private generateFinishingSteps;
     private mainChatChain;
     private extendedBotChain;
     private generateBotAndChain;
+    private generateBrainChain;
+    private generateExtendedBrainChain;
     private botPossibilities;
     private userPossibilities;
     private addUserMessage;

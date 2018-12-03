@@ -123,12 +123,29 @@ chat.when('the user asks for a very complex answer', {answerDelay: 200})
 
 If you want to set the robot's brain before committing to the test case, just user below example:
 ```javascript
-chat.when('the bot should remember something')
-    .setBrain((brain) => {
-       brain.set('variable', 'hello world'); 
-    })
-    .user('user').messagesBot('tell me the value of variable')
-    .bot.repliesWith('The value of the variable is "hello wolrd"');
+chat.when('user is asking the bot to forget the value of the remembered variable')
+    .setBrain((brain => {
+        brain.set('hubot-sayings-name', 'value');
+    }))
+    .user('alice').messagesRoom('!forget name')
+    .bot.messagesRoom('forgotten')
+    .brain.includes('hubot-sayings-name', null)
+        .and.itIncludes('perhaps another checking?', null)
+    .expect('the bot should forget it');
+```
+
+In case of requirement to set up the room other than with default values, you can do it with two different ways.
+```javascript
+const roomOptions = {response: NewMockResponse};
+// The first way is to set the default options on all chat test cases
+const chat = new HubotChatTesting('hubot', new Helper('../node_modules/hubot-sayings/src/hubot-sayings.js'), null, roomOptions);
+
+chat.when('user is asking the bot to remember the value')
+    .setRoomOptions(roomOptions) // The second way is to set the options only for this test case
+    .user('alice').messagesRoom('!remember name value')
+    .bot.messagesRoom("okay, i'll remember that")
+    .brain.includes('hubot-sayings-name', 'value')
+    .expect('the bot should remember the values');
 ```
 
 ... and if you still need something more complex than this module's API, you can also define your own expectations that

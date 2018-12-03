@@ -10,6 +10,7 @@ class Chat {
         this.userMessages = [];
         this.botMessages = [];
         this.options = options;
+        this.brainExpectations = {};
     }
     startChain(context) {
         const self = this;
@@ -21,25 +22,38 @@ class Chat {
             expect: mainChain.expect,
             setBrain: function (f) {
                 self.settingBrainFunction = f;
-                return mainChain;
+                return self.startChain(context);
             },
+            setRoomOptions: function (roomOptions) {
+                self.roomOptions = roomOptions;
+                return self.startChain(context);
+            },
+            brain: mainChain.brain,
             additionalExpectations: mainChain.additionalExpectations
+        };
+    }
+    generateFinishingSteps(context) {
+        const self = this;
+        const expect = this.generateHubotTests(context);
+        return {
+            additionalExpectations: function (f) {
+                self.additionalExpectations = f;
+                return self.generateFinishingSteps(context);
+            },
+            expect
         };
     }
     mainChatChain() {
         const self = this;
+        const finishingStep = this.generateFinishingSteps(this.context);
         return {
             user: function (username) {
                 return self.userPossibilities(username);
             },
             bot: self.botPossibilities(),
-            expect: self.generateHubotTests(self.context),
-            additionalExpectations: function (f) {
-                self.additionalExpectations = f;
-                return {
-                    expect: self.generateHubotTests(self.context)
-                };
-            }
+            additionalExpectations: finishingStep.additionalExpectations,
+            expect: finishingStep.expect,
+            brain: self.generateBrainChain()
         };
     }
     extendedBotChain(reply) {
@@ -50,7 +64,8 @@ class Chat {
             user: mainChain.user,
             and: self.generateBotAndChain(reply),
             expect: mainChain.expect,
-            additionalExpectations: mainChain.additionalExpectations
+            additionalExpectations: mainChain.additionalExpectations,
+            brain: mainChain.brain
         };
     }
     generateBotAndChain(reply) {
@@ -67,9 +82,37 @@ class Chat {
             }
         };
     }
+    generateBrainChain() {
+        const self = this;
+        return {
+            includes: function (key, object) {
+                self.brainExpectations[key] = object;
+                return self.generateExtendedBrainChain();
+            }
+        };
+    }
+    generateExtendedBrainChain() {
+        const finishingStep = this.generateFinishingSteps(this.context);
+        const self = this;
+        return {
+            and: {
+                itIncludes: function (key, object) {
+                    self.brainExpectations[key] = object;
+                    return self.generateExtendedBrainChain();
+                }
+            },
+            additionalExpectations: finishingStep.additionalExpectations,
+            expect: finishingStep.expect,
+        };
+    }
     botPossibilities() {
         const self = this;
         return {
+            messagesRoom: function (message) {
+                const msg = `${message}`;
+                const reply = self.addBotMessage(msg, chat_messages_1.BotMessageExpectations.EQUAL);
+                return self.extendedBotChain(reply);
+            },
             repliesWith: function (message) {
                 const lastUserMessage = self.getLastUserMessage();
                 const msg = `@${lastUserMessage.user} ${message}`;
@@ -120,7 +163,7 @@ class Chat {
         return function (summary) {
             describe(context, function () {
                 beforeEach(function () {
-                    test_worker_1.TestWorker.prepareTest(this, self.helper);
+                    test_worker_1.TestWorker.prepareTest(this, self.helper, self.roomOptions);
                     if (self.settingBrainFunction != null) {
                         this.logger.debug(`Starting user-defined function that sets up the robot's brain...`);
                         self.settingBrainFunction(this.room.robot.brain);
@@ -134,6 +177,7 @@ class Chat {
                 it(summary, function () {
                     this.logger.debug(`Running test '${context} ${summary}'. Messages in chat (${this.room.messages.length}):\n${JSON.stringify(this.room.messages)}`);
                     test_worker_1.TestWorker.performExpectations(this, self.userMessages, self.botMessages);
+                    test_worker_1.TestWorker.performBrainExpectations(this, self.brainExpectations);
                     if (self.additionalExpectations != null) {
                         this.logger.debug(`Starting user-defined function with additional expectations...`);
                         self.additionalExpectations(this, this.logger);

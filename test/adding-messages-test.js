@@ -63,6 +63,18 @@ describe('Testing the adding messages API', () => {
                 'The bot reply stored in the chat should address proper user message');
         });
 
+        it('should contain information about the bot reply matching regexp passed as string', () => {
+            this.chat.when('user sends message and bot replies')
+                .user('user').messagesRoom('hi')
+                .bot.messagesRoom('say hi guys to the user!');
+
+            expect(this.botMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
+            expect(this.botMessages[0].messages).to.deep.eql([{expectation: 'say hi guys to the user!', type: 0}],
+                'The bot reply stored in the chat should have proper expectations');
+            expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi', delay: 50},
+                'The bot reply stored in the chat should address proper user message');
+        });
+
         it('should contain information about the bot reply matching regexp', () => {
             this.chat.when('user sends message and bot replies')
                 .user('user').messagesRoom('hi')
@@ -102,10 +114,18 @@ describe('Testing the adding messages API', () => {
         it('should contain information about the bot reply matching two expectations', () => {
             this.chat.when('user sends message and bot replies')
                 .user('user').messagesRoom('hi')
-                .bot.replyIncludes('hi').and.itMatches(/@user/);
+                .bot.replyIncludes('hi')
+                    .and.itMatches(/@user/)
+                    .and.itIncludes('use')
+                    .and.itMatches('user (hi|hello)');
 
             expect(this.botMessages.length).to.eql(1, 'The amount of messages in the chat is not correct');
-            expect(this.botMessages[0].messages).to.deep.eql([{expectation: 'hi', type: 2}, {expectation: /@user/, type: 1}],
+            expect(this.botMessages[0].messages).to.deep.eql([
+                    {expectation: 'hi', type: 2},
+                    {expectation: /@user/, type: 1},
+                    {expectation: 'use', type: 2},
+                    {expectation: /user (hi|hello)/, type: 1}
+                ],
                 'The bot reply stored in the chat should have proper expectations');
             expect(this.botMessages[0].replyTo).to.deep.eql({user: 'user', message: 'hi', delay: 50},
                 'The bot reply stored in the chat should address proper user message');

@@ -4,9 +4,10 @@ const chat_messages_1 = require("./chat-messages");
 const chai_1 = require("chai");
 const co = require('co');
 class TestWorker {
-    static prepareTest(test, helper) {
-        test.room = helper.createRoom();
+    static prepareTest(test, helper, roomOptions) {
+        test.room = helper.createRoom(roomOptions);
         test.logger = test.room.robot.logger;
+        test.logger.debug(`Created room with options: ${JSON.stringify(roomOptions)}`);
     }
     static finishTest(test) {
         test.room.destroy();
@@ -33,6 +34,18 @@ class TestWorker {
                 const reply = { user: actualMessages[index][0], message: actualMessages[index][1] };
                 TestWorker.compareBotReplyWithMessage(reply, botReply);
                 index++;
+            }
+        }
+    }
+    static performBrainExpectations(test, brainExpectations) {
+        const brain = test.room.robot.brain;
+        const keys = Object.keys(brainExpectations);
+        if (keys.length > 0) {
+            test.logger.debug(`Checking user expectations of the brain [${keys.join(', ')}]...`);
+            for (const key of keys) {
+                const actualValue = brain.get(key);
+                const expectedValue = brainExpectations[key];
+                chai_1.expect(actualValue).to.deep.eq(expectedValue, 'The object stored in hubot brain does not match assertion');
             }
         }
     }

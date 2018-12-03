@@ -1,7 +1,7 @@
 {
   "name": "hubot-chat-testing",
   "description": "A simple suite for making the tests more straight-forward and easier to read",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "Dorian Krefft <dorian.krefft@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -34,7 +34,9 @@
   "devDependencies": {
     "dotenv": "^6.1.0",
     "mocha": "5.2.0",
-    "nyc": "^13.1.0"
+    "nyc": "^13.1.0",
+    "hubot-encourage": "1.0.2",
+    "hubot-sayings": "1.0.0"
   },
   "scripts": {
     "prepublish": "npm run build",
