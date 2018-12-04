@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chat_messages_1 = require("./chat-messages");
+const chain_interfaces_1 = require("./chain-interfaces");
 const test_worker_1 = require("./test-worker");
 class Chat {
     constructor(robotName = 'hubot', helper, options) {
@@ -10,7 +11,7 @@ class Chat {
         this.userMessages = [];
         this.botMessages = [];
         this.options = options;
-        this.brainExpectations = {};
+        this.brainExpectations = new chain_interfaces_1.BrainExpectations();
     }
     startChain(context) {
         this.context = context;
@@ -32,15 +33,14 @@ class Chat {
     }
     ;
     mainChain() {
-        const finishingChain = this.finishingChain();
+        const brainChain = this.brainChain();
         const mainChain = {
             user: (username) => {
                 return this.userChain(username);
             },
-            bot: this.botChain(),
-            brain: this.brainChain()
+            bot: this.botChain()
         };
-        return Object.assign({}, finishingChain, mainChain);
+        return Object.assign({}, brainChain, mainChain);
     }
     finishingChain() {
         return {
@@ -105,20 +105,29 @@ class Chat {
         };
     }
     brainChain() {
-        return {
-            includes: (key, object) => {
-                this.brainExpectations[key] = object;
-                return this.extendedBrainChain();
-            }
-        };
-    }
-    extendedBrainChain() {
         const finishingStep = this.finishingChain();
+        const brainExpectations = (reverted, key) => {
+            return {
+                includes: (obj) => {
+                    this.brainExpectations.includes.push({ key, reverted, obj });
+                    return this.brainChain();
+                },
+                equals: (obj) => {
+                    this.brainExpectations.equals.push({ key, reverted, obj });
+                    return this.brainChain();
+                }
+            };
+        };
         const result = {
-            and: {
-                itIncludes: (key, object) => {
-                    this.brainExpectations[key] = object;
-                    return this.extendedBrainChain();
+            brain: {
+                key: (key) => {
+                    return Object.assign({}, brainExpectations(false, key), { not: brainExpectations(true, key) });
+                },
+                not: {
+                    contains: (key) => {
+                        this.brainExpectations.keys.push(key);
+                        return this.brainChain();
+                    }
                 }
             }
         };

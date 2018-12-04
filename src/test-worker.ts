@@ -1,5 +1,6 @@
 import {BotMessage, BotMessageExpectations, ChatMessage, SimpleMessage} from "./chat-messages";
 import {expect} from 'chai'
+import {BrainExpectations} from "./chain-interfaces";
 
 const co = require('co');
 
@@ -43,17 +44,47 @@ export class TestWorker{
         }
     }
 
-    static performBrainExpectations(test: any, brainExpectations: any){
+    static performBrainExpectations(test: any, brainExpectations: BrainExpectations){
         const brain = test.room.robot.brain;
-        const keys = Object.keys(brainExpectations);
+        test.logger.debug(`Brain expectations: ${JSON.stringify(brainExpectations)}.`);
+        TestWorker.performBrainContainsExpectations(brain, brainExpectations.keys);
+        TestWorker.performBrainObjectExpectations(brain, brainExpectations.equals, 'equals');
+        TestWorker.performBrainObjectExpectations(brain, brainExpectations.includes, 'includes');
+    }
 
-        if(keys.length > 0){
-            test.logger.debug(`Checking user expectations of the brain [${keys.join(', ')}]...`);
-            for(const key of keys){
-                const actualValue = brain.get(key);
-                const expectedValue = brainExpectations[key];
-                expect(actualValue).to.deep.eq(expectedValue,
-                    'The object stored in hubot brain does not match assertion')
+    private static performBrainContainsExpectations(brain: any, containExpectations: string[]){
+        for(const expectation of containExpectations){
+            expect(brain.get(expectation)).to.not.exist;
+        }
+    }
+
+    private static performBrainObjectExpectations(brain: any, expectations: {key: string,  reverted:boolean, obj: any}[], type: string){
+        for(const expectation of expectations){
+            const actualValue = brain.get(expectation.key);
+            const expectedValue = expectation.obj;
+            const reverted = expectation.reverted;
+
+            switch(type){
+                case 'equals':
+                    if(reverted){
+                        expect(actualValue).to.not.deep.eq(expectedValue,
+                            'The object in bot\'s brain should not equal expected value');
+                    }
+                    else{
+                        expect(actualValue).to.deep.eq(expectedValue,
+                            'The object in bot\'s brain is not the same as expected value');
+                    }
+                break;
+                case 'includes':
+                    if(reverted){
+                        expect(actualValue).to.not.include(expectedValue,
+                            'The object in bot\s brain should not include expected value');
+                    }
+                    else{
+                        expect(actualValue).to.include(expectedValue,
+                            'The object in bot\s brain does not include expected value');
+                    }
+                break;
             }
         }
     }

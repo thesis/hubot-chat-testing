@@ -21,7 +21,6 @@ export declare class Chat {
     private extendedBotChain;
     private userChain;
     private brainChain;
-    private extendedBrainChain;
     private addUserMessage;
     private addBotMessage;
     private getLastUserMessage;

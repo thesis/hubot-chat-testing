@@ -17,10 +17,9 @@ export interface ExtendedBotChatChain extends MainChatChain {
     }
 }
 
-export interface MainChatChain extends FinishingStep {
+export interface MainChatChain extends BrainChain {
     user: (username: string) => UserChatChain;
     bot: BotChatChain;
-    brain: BrainChain;
 }
 
 export interface FinishingStep {
@@ -33,12 +32,26 @@ export interface FirstChatChain extends MainChatChain {
     setBrain: (f: (brain: any) => void) => FirstChatChain;
 }
 
-export interface BrainChain {
-    includes: (key: string, obj: any) => ExtendedBrainChain;
+export interface BrainChain extends FinishingStep {
+    brain: {
+        key: (key: string) => BrainChainExpectations,
+        not: {
+            contains: (key: string) => BrainChain
+        }
+    }
 }
 
-export interface ExtendedBrainChain extends FinishingStep {
-    and: {
-        itIncludes: (key: string, obj: any) => ExtendedBrainChain;
-    }
+export interface BrainChainExpectationsActions {
+    includes: (obj: any) => BrainChain,
+    equals: (obj: any) => BrainChain
+}
+
+export interface BrainChainExpectations extends BrainChainExpectationsActions {
+    not: BrainChainExpectationsActions
+}
+
+export class BrainExpectations {
+    equals: {key: string,  reverted:boolean, obj: any}[] = [];
+    includes: {key: string,  reverted:boolean, obj: any}[] = [];
+    keys: string[] = [];
 }

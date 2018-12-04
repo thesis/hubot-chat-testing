@@ -39,13 +39,38 @@ class TestWorker {
     }
     static performBrainExpectations(test, brainExpectations) {
         const brain = test.room.robot.brain;
-        const keys = Object.keys(brainExpectations);
-        if (keys.length > 0) {
-            test.logger.debug(`Checking user expectations of the brain [${keys.join(', ')}]...`);
-            for (const key of keys) {
-                const actualValue = brain.get(key);
-                const expectedValue = brainExpectations[key];
-                chai_1.expect(actualValue).to.deep.eq(expectedValue, 'The object stored in hubot brain does not match assertion');
+        test.logger.debug(`Brain expectations: ${JSON.stringify(brainExpectations)}.`);
+        TestWorker.performBrainContainsExpectations(brain, brainExpectations.keys);
+        TestWorker.performBrainObjectExpectations(brain, brainExpectations.equals, 'equals');
+        TestWorker.performBrainObjectExpectations(brain, brainExpectations.includes, 'includes');
+    }
+    static performBrainContainsExpectations(brain, containExpectations) {
+        for (const expectation of containExpectations) {
+            chai_1.expect(brain.get(expectation)).to.not.exist;
+        }
+    }
+    static performBrainObjectExpectations(brain, expectations, type) {
+        for (const expectation of expectations) {
+            const actualValue = brain.get(expectation.key);
+            const expectedValue = expectation.obj;
+            const reverted = expectation.reverted;
+            switch (type) {
+                case 'equals':
+                    if (reverted) {
+                        chai_1.expect(actualValue).to.not.deep.eq(expectedValue, 'The object in bot\'s brain should not equal expected value');
+                    }
+                    else {
+                        chai_1.expect(actualValue).to.deep.eq(expectedValue, 'The object in bot\'s brain is not the same as expected value');
+                    }
+                    break;
+                case 'includes':
+                    if (reverted) {
+                        chai_1.expect(actualValue).to.not.include(expectedValue, 'The object in bot\s brain should not include expected value');
+                    }
+                    else {
+                        chai_1.expect(actualValue).to.include(expectedValue, 'The object in bot\s brain does not include expected value');
+                    }
+                    break;
             }
         }
     }

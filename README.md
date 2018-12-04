@@ -123,15 +123,14 @@ chat.when('the user asks for a very complex answer', {answerDelay: 200})
 
 If you want to set the robot's brain before committing to the test case, just user below example:
 ```javascript
-chat.when('user is asking the bot to forget the value of the remembered variable')
-    .setBrain((brain => {
-        brain.set('hubot-sayings-name', 'value');
-    }))
-    .user('alice').messagesRoom('!forget name')
-    .bot.messagesRoom('forgotten')
-    .brain.includes('hubot-sayings-name', null)
-        .and.itIncludes('perhaps another checking?', null)
-    .expect('the bot should forget it');
+    chat.when('user is asking the bot to forget the value of the remembered variable')
+        .setBrain((brain => {
+            brain.set('hubot-sayings-name', 'value');
+        }))
+        .user('alice').messagesRoom('!forget name')
+        .bot.messagesRoom('forgotten')
+        .brain.not.contains('hubot-sayings-name')
+        .expect('the bot should forget it');
 ```
 
 In case of requirement to set up the room other than with default values, you can do it with two different ways.
@@ -144,7 +143,7 @@ chat.when('user is asking the bot to remember the value')
     .setRoomOptions(roomOptions) // The second way is to set the options only for this test case
     .user('alice').messagesRoom('!remember name value')
     .bot.messagesRoom("okay, i'll remember that")
-    .brain.includes('hubot-sayings-name', 'value')
+    .brain.key('hubot-sayings-name').equals('value')
     .expect('the bot should remember the values');
 ```
 

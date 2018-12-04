@@ -12,7 +12,7 @@ class NewMockResponse extends Helper.Response {
  * Test taken from the hubot-encourage module
  * Script: https://github.com/HaroldPutman/hubot-encourage/blob/master/test/index.js
 ***/
-describe('Testing the library with hubot-hello', () => {
+describe('Testing the library with hubot-encourage', () => {
     const roomOptions = {response: NewMockResponse};
     const chat = new HubotChatTesting('hubot', new Helper('../node_modules/hubot-encourage/dist/index.js'), null, roomOptions);
 

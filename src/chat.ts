@@ -2,11 +2,11 @@ import {BotMessage, BotMessageExpectations, ChatMessage} from "./chat-messages";
 import {
     BotChatChain,
     BrainChain,
-    ExtendedBotChatChain, ExtendedBrainChain,
+    ExtendedBotChatChain,
     FirstChatChain,
     MainChatChain,
     UserChatChain,
-    FinishingStep
+    FinishingStep, BrainExpectations
 } from "./chain-interfaces";
 import {TestWorker} from "./test-worker";
 import {HubotChatOptions} from "./options";
@@ -21,7 +21,7 @@ export class Chat {
     private readonly helper: any;
     private roomOptions?: any;
     private options: HubotChatOptions;
-    private readonly brainExpectations: any;
+    private readonly brainExpectations: BrainExpectations;
     
     constructor(robotName: string = 'hubot', helper: any, options: HubotChatOptions){
         this.robotName = robotName;
@@ -29,7 +29,7 @@ export class Chat {
         this.userMessages = [];
         this.botMessages = [];
         this.options = options;
-        this.brainExpectations = {};
+        this.brainExpectations = new BrainExpectations();
     }
 
     startChain(context: string) : FirstChatChain {
@@ -53,15 +53,14 @@ export class Chat {
     };
 
     private mainChain() : MainChatChain {
-        const finishingChain = this.finishingChain();
+        const brainChain = this.brainChain();
         const mainChain = {
             user: (username: string) => {
                 return this.userChain(username);
             },
-            bot: this.botChain(),
-            brain: this.brainChain()
+            bot: this.botChain()
         };
-        return {...finishingChain, ...mainChain};
+        return {...brainChain, ...mainChain};
     }
 
     private finishingChain() : FinishingStep {
@@ -131,21 +130,32 @@ export class Chat {
     }
 
     private brainChain() : BrainChain {
-        return {
-            includes: (key: string, object: any) : ExtendedBrainChain => {
-                this.brainExpectations[key] = object;
-                return this.extendedBrainChain();
-            }
-        }
-    }
-
-    private extendedBrainChain() : ExtendedBrainChain {
         const finishingStep: FinishingStep = this.finishingChain();
+        const brainExpectations = (reverted: boolean, key: string) => {
+            return {
+                includes: (obj: any): BrainChain => {
+                    this.brainExpectations.includes.push({key, reverted, obj});
+                    return this.brainChain();
+                },
+                equals: (obj: any): BrainChain => {
+                    this.brainExpectations.equals.push({key, reverted, obj});
+                    return this.brainChain();
+                }
+            }
+        };
         const result = {
-            and: {
-                itIncludes: (key: string, object: any) : ExtendedBrainChain => {
-                    this.brainExpectations[key] = object;
-                    return this.extendedBrainChain();
+            brain: {
+                key: (key: string) => {
+                    return {
+                        ...brainExpectations(false, key),
+                        not: brainExpectations(true, key)
+                    };
+                },
+                not: {
+                    contains: (key: string) : BrainChain => {
+                        this.brainExpectations.keys.push(key);
+                        return this.brainChain();
+                    }
                 }
             }
         };
