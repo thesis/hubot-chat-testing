@@ -13,135 +13,116 @@ class Chat {
         this.brainExpectations = {};
     }
     startChain(context) {
-        const self = this;
-        const mainChain = this.mainChatChain();
         this.context = context;
+        return this.firstChain();
+    }
+    firstChain() {
+        const mainChain = this.mainChain();
+        const result = {
+            setBrain: (f) => {
+                this.settingBrainFunction = f;
+                return this.firstChain();
+            },
+            setRoomOptions: (roomOptions) => {
+                this.roomOptions = roomOptions;
+                return this.firstChain();
+            }
+        };
+        return Object.assign({}, mainChain, result);
+    }
+    ;
+    mainChain() {
+        const finishingChain = this.finishingChain();
+        const mainChain = {
+            user: (username) => {
+                return this.userChain(username);
+            },
+            bot: this.botChain(),
+            brain: this.brainChain()
+        };
+        return Object.assign({}, finishingChain, mainChain);
+    }
+    finishingChain() {
         return {
-            user: mainChain.user,
-            bot: mainChain.bot,
-            expect: mainChain.expect,
-            setBrain: function (f) {
-                self.settingBrainFunction = f;
-                return self.startChain(context);
+            additionalExpectations: (f) => {
+                this.additionalExpectations = f;
+                return this.finishingChain();
             },
-            setRoomOptions: function (roomOptions) {
-                self.roomOptions = roomOptions;
-                return self.startChain(context);
-            },
-            brain: mainChain.brain,
-            additionalExpectations: mainChain.additionalExpectations
+            expect: this.generateHubotTests()
         };
     }
-    generateFinishingSteps(context) {
-        const self = this;
-        const expect = this.generateHubotTests(context);
+    botChain() {
         return {
-            additionalExpectations: function (f) {
-                self.additionalExpectations = f;
-                return self.generateFinishingSteps(context);
+            messagesRoom: (message) => {
+                const msg = `${message}`;
+                const reply = this.addBotMessage(msg, chat_messages_1.BotMessageExpectations.EQUAL);
+                return this.extendedBotChain(reply);
             },
-            expect
-        };
-    }
-    mainChatChain() {
-        const self = this;
-        const finishingStep = this.generateFinishingSteps(this.context);
-        return {
-            user: function (username) {
-                return self.userPossibilities(username);
+            repliesWith: (message) => {
+                const lastUserMessage = this.getLastUserMessage();
+                const msg = `@${lastUserMessage.user} ${message}`;
+                const reply = this.addBotMessage(msg, chat_messages_1.BotMessageExpectations.EQUAL);
+                return this.extendedBotChain(reply);
             },
-            bot: self.botPossibilities(),
-            additionalExpectations: finishingStep.additionalExpectations,
-            expect: finishingStep.expect,
-            brain: self.generateBrainChain()
+            replyMatches: (pattern) => {
+                let message = typeof pattern === "string" ? new RegExp(pattern) : pattern;
+                const reply = this.addBotMessage(message, chat_messages_1.BotMessageExpectations.MATCH);
+                return this.extendedBotChain(reply);
+            },
+            replyIncludes: (messagePart) => {
+                const reply = this.addBotMessage(messagePart, chat_messages_1.BotMessageExpectations.INCLUDE);
+                return this.extendedBotChain(reply);
+            }
         };
     }
     extendedBotChain(reply) {
-        const self = this;
-        const mainChain = this.mainChatChain();
-        return {
-            bot: mainChain.bot,
-            user: mainChain.user,
-            and: self.generateBotAndChain(reply),
-            expect: mainChain.expect,
-            additionalExpectations: mainChain.additionalExpectations,
-            brain: mainChain.brain
-        };
-    }
-    generateBotAndChain(reply) {
-        const self = this;
-        return {
-            itMatches: function (pattern) {
-                let message = typeof pattern === "string" ? new RegExp(pattern) : pattern;
-                reply.addExpectation(message, chat_messages_1.BotMessageExpectations.MATCH);
-                return self.extendedBotChain(reply);
-            },
-            itIncludes: function (messagePart) {
-                reply.addExpectation(messagePart, chat_messages_1.BotMessageExpectations.INCLUDE);
-                return self.extendedBotChain(reply);
-            }
-        };
-    }
-    generateBrainChain() {
-        const self = this;
-        return {
-            includes: function (key, object) {
-                self.brainExpectations[key] = object;
-                return self.generateExtendedBrainChain();
-            }
-        };
-    }
-    generateExtendedBrainChain() {
-        const finishingStep = this.generateFinishingSteps(this.context);
-        const self = this;
-        return {
+        const mainChain = this.mainChain();
+        const result = {
             and: {
-                itIncludes: function (key, object) {
-                    self.brainExpectations[key] = object;
-                    return self.generateExtendedBrainChain();
+                itMatches: (pattern) => {
+                    let message = typeof pattern === "string" ? new RegExp(pattern) : pattern;
+                    reply.addExpectation(message, chat_messages_1.BotMessageExpectations.MATCH);
+                    return this.extendedBotChain(reply);
+                },
+                itIncludes: (messagePart) => {
+                    reply.addExpectation(messagePart, chat_messages_1.BotMessageExpectations.INCLUDE);
+                    return this.extendedBotChain(reply);
                 }
-            },
-            additionalExpectations: finishingStep.additionalExpectations,
-            expect: finishingStep.expect,
+            }
         };
+        return Object.assign({}, mainChain, result);
     }
-    botPossibilities() {
-        const self = this;
+    userChain(username) {
         return {
-            messagesRoom: function (message) {
-                const msg = `${message}`;
-                const reply = self.addBotMessage(msg, chat_messages_1.BotMessageExpectations.EQUAL);
-                return self.extendedBotChain(reply);
+            messagesBot: (message, delay) => {
+                this.addUserMessage(username, `${this.robotName} ${message}`, delay);
+                return this.mainChain();
             },
-            repliesWith: function (message) {
-                const lastUserMessage = self.getLastUserMessage();
-                const msg = `@${lastUserMessage.user} ${message}`;
-                const reply = self.addBotMessage(msg, chat_messages_1.BotMessageExpectations.EQUAL);
-                return self.extendedBotChain(reply);
-            },
-            replyMatches: function (pattern) {
-                let message = typeof pattern === "string" ? new RegExp(pattern) : pattern;
-                const reply = self.addBotMessage(message, chat_messages_1.BotMessageExpectations.MATCH);
-                return self.extendedBotChain(reply);
-            },
-            replyIncludes: function (messagePart) {
-                const reply = self.addBotMessage(messagePart, chat_messages_1.BotMessageExpectations.INCLUDE);
-                return self.extendedBotChain(reply);
+            messagesRoom: (message, delay) => {
+                this.addUserMessage(username, message, delay);
+                return this.mainChain();
             }
         };
     }
-    userPossibilities(username) {
-        const self = this;
+    brainChain() {
         return {
-            messagesBot: function (message, delay) {
-                self.addUserMessage(username, `${self.robotName} ${message}`, delay);
-                return self.mainChatChain();
-            },
-            messagesRoom: function (message, delay) {
-                self.addUserMessage(username, message, delay);
-                return self.mainChatChain();
+            includes: (key, object) => {
+                this.brainExpectations[key] = object;
+                return this.extendedBrainChain();
             }
         };
+    }
+    extendedBrainChain() {
+        const finishingStep = this.finishingChain();
+        const result = {
+            and: {
+                itIncludes: (key, object) => {
+                    this.brainExpectations[key] = object;
+                    return this.extendedBrainChain();
+                }
+            }
+        };
+        return Object.assign({}, finishingStep, result);
     }
     addUserMessage(username, message, delay) {
         const botDelay = delay || this.options.answerDelay;
@@ -158,9 +139,10 @@ class Chat {
     getLastUserMessage() {
         return this.userMessages[this.userMessages.length - 1];
     }
-    generateHubotTests(context) {
+    generateHubotTests() {
         const self = this;
-        return function (summary) {
+        const context = this.context;
+        return (summary) => {
             describe(context, function () {
                 beforeEach(function () {
                     test_worker_1.TestWorker.prepareTest(this, self.helper, self.roomOptions);
