@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chat_1 = require("./src/chat");
 const options_1 = require("./src/options");
 class HubotChatTesting {
-    constructor(robotName = 'hubot', helper, options, roomOptions) {
+    constructor(robotName, helper, options, roomOptions) {
         this.robotName = robotName;
         this.helper = helper;
         this.options = options || new options_1.HubotChatOptions();

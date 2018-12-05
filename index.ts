@@ -8,7 +8,7 @@ class HubotChatTesting {
     private readonly options: HubotChatOptions;
     private readonly roomOptions: any;
 
-    constructor(robotName: string = 'hubot', helper: any, options?: HubotChatOptions, roomOptions?: any){
+    constructor(robotName: string, helper: any, options?: HubotChatOptions, roomOptions?: any){
         this.robotName = robotName;
         this.helper = helper;
         this.options = options || new HubotChatOptions();

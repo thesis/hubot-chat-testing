@@ -70,6 +70,9 @@ const chat = new HubotChatTesting('hubot', new Helper('../scripts/orders.js'));
 ```
 
 ### Writing the tests
+All you have to do in the first place is to create normal test suit - as you would do with the `hubot-test-helper` module.
+Then either in `describe` or `context` just place your chat assertions by using the module's API.
+
 Typical flow of the conversation:
 ```javascript
  chat.when('testing good manners of the bot')
@@ -82,6 +85,13 @@ Typical flow of the conversation:
     .expect('the bot should be polite and say hi when user is greeting');
 ```
 
+As you can see, this library focuses on making the chat flow as easy as it would be in the real life. Each bot response
+should be added as a reaction to the specific user's message - and each expectation means a new message in chat. 
+
+The `hubot-chat-test` module has simple to understand 'chains', which were inspired by libraries like `spec`, `mocha` etc.
+
+##### Checking whether the bot response matches regex
+
 If you don't want to check the whole response of the bot, but instead you just need to 
 check whether the response matches some regexp:
 ```javascript
@@ -92,6 +102,8 @@ check whether the response matches some regexp:
     .expect('the bot should tell the user the truth');
 ```
 
+##### Checking whether the bot responses multiple time for one user message
+
 If the bot feels very talkative, you can just use:
 ```javascript
  chat.when('the user is greeting in the room')
@@ -100,6 +112,8 @@ If the bot feels very talkative, you can just use:
     .bot.repliesWith('Oh yes, now I remember! You\'re that guy the admin told me to worry about!')
     .expect('the bot should react to it with some chit-chat');
 ```
+
+##### Multiple assertions for single bot response
 
 If you want to perform multiple checks for single bot's response:
 ```javascript
@@ -111,6 +125,8 @@ chat.when('the user asks for a very complex answer')
     .expect('the bot should react to it with some chit-chat');
 ```
 
+##### Setting the delay for the bot response
+
 If the bot needs time to compute an answer, you can increase the waiting time by using:
 ```javascript
 // this delay will be used by default in all test scenarios
@@ -121,6 +137,11 @@ chat.when('the user asks for a very complex answer', {answerDelay: 200})
     .user('user').messagesBot('a very intriguing message', 400) // only this request will wait 400 ms for an answer
 ```
 
+This functionality is useful when you are not mocking your bot's functionality and instead it calls some HTTP requests.
+More information can be found [under the docs for hubot-test-helper](https://github.com/mtsmfm/hubot-test-helper#manual-delay).
+
+##### Setting content and adding assertions for the bot's brain
+ 
 If you want to set the robot's brain before committing to the test case, just user below example:
 ```javascript
     chat.when('user is asking the bot to forget the value of the remembered variable')
@@ -132,6 +153,24 @@ If you want to set the robot's brain before committing to the test case, just us
         .brain.not.contains('hubot-sayings-name')
         .expect('the bot should forget it');
 ```
+
+##### Adding your own expectations for the test
+
+If you still need something more complex than this module's API, you can also define your own expectations that
+will fire after the default ones:
+```javascript
+const expect = require('chai').expect;
+chat.when('the user is asking for something very complex')
+    .user('user').messagesBot('cmon, do something')
+    .bot.repliesWith('*does*')
+    .additionalExpectations((test, logger) => {
+        logger.debug(`You can access the logger by using the optional parameter logger`);
+        expect(test.room.messages[1]).to.not.eql('simple')
+    })
+    .expect('the bot should do it')
+```
+
+##### Additional configuration for the hubot-test-helper
 
 In case of requirement to set up the room other than with default values, you can do it with two different ways.
 ```javascript
@@ -147,21 +186,14 @@ chat.when('user is asking the bot to remember the value')
     .expect('the bot should remember the values');
 ```
 
-... and if you still need something more complex than this module's API, you can also define your own expectations that
-will fire after the default ones:
-```javascript
-const expect = require('chai').expect;
-chat.when('the user is asking for something very complex')
-    .user('user').messagesBot('cmon, do something')
-    .bot.repliesWith('*does*')
-    .additionalExpectations((test, logger) => {
-        logger.debug(`You can access the logger by using the optional parameter logger`);
-        expect(test.room.messages[1]).to.not.eql('simple')
-    })
-    .expect('the bot should do it')
-```
+##### More examples
+
 For more examples, please give the [tests](test) a try.
 
 ## Contribution
 I am willing to greet any contributions that would make testing Hubot's scripts even more readable.
 If you want to contribute, just fork the project and add some changes!
+
+## Errors and ideas to improve
+If you will find any errors with this library or have great idea how to improve it (and dont want to do it on your own),
+please feel free to open [a new ticket](https://gitlab.com/TheDeeM/hubot-chat-testing/issues). 

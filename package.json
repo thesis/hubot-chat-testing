@@ -1,7 +1,7 @@
 {
   "name": "hubot-chat-testing",
   "description": "A simple suite for making the tests more straight-forward and easier to read",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "author": "Dorian Krefft <dorian.krefft@gmail.com>",
   "license": "MIT",
   "keywords": [
@@ -17,6 +17,8 @@
     "node": ">=8.x",
     "npm": ">=5.x"
   },
+  "homepage" : "https://gitlab.com/TheDeeM/hubot-chat-testing",
+  "bugs" : "https://gitlab.com/TheDeeM/hubot-chat-testing/issues",
   "repository": "git@gitlab.com:TheDeeM/hubot-chat-testing.git",
   "dependencies": {
     "chai": "^4.2.0",

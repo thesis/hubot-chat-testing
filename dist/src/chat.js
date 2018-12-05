@@ -4,7 +4,7 @@ const chat_messages_1 = require("./chat-messages");
 const chain_interfaces_1 = require("./chain-interfaces");
 const test_worker_1 = require("./test-worker");
 class Chat {
-    constructor(robotName = 'hubot', helper, options) {
+    constructor(robotName, helper, options) {
         this.context = 'The context string was not provided!';
         this.robotName = robotName;
         this.helper = helper;

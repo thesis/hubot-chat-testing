@@ -30,13 +30,18 @@ export class TestWorker{
 
         let index = 0;
         for(const userMessage of userMessages){
-            const message = {user: actualMessages[index][0], message: actualMessages[index][1]};
             const expectedMessage = {user: userMessage.user, message: userMessage.message};
-            expect(message).to.eql(expectedMessage, 'User message does not match the message in the chat history');
+
+            expect(actualMessages.length).to.be.greaterThan(index,
+                `Could not find user message '${expectedMessage.message}' in the chat history`);
+
+            const message = {user: actualMessages[index][0], message: actualMessages[index][1]};
             index++;
 
             const botReplies = TestWorker.findBotRepliesToMessage(message, botMessages);
             for(const botReply of botReplies){
+                expect(actualMessages.length).to.be.greaterThan(index,
+                    `Could not find bot reply in the chat history for message '${expectedMessage.message}'`);
                 const reply = {user: actualMessages[index][0], message: actualMessages[index][1]};
                 TestWorker.compareBotReplyWithMessage(reply, botReply);
                 index++;

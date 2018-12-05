@@ -23,7 +23,7 @@ export class Chat {
     private options: HubotChatOptions;
     private readonly brainExpectations: BrainExpectations;
     
-    constructor(robotName: string = 'hubot', helper: any, options: HubotChatOptions){
+    constructor(robotName: string, helper: any, options: HubotChatOptions){
         this.robotName = robotName;
         this.helper = helper;
         this.userMessages = [];
