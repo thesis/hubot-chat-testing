@@ -66,7 +66,7 @@ then all you have to do is to require the library and set-up the `hubot-test-hel
 const HubotChatTesting = require('hubot-chat-testing');
 const Helper = require('hubot-test-helper');
 
-const chat = new HubotChatTesting('hubot', new Helper('../scripts/orders.js'));
+const chat = new HubotChatTesting('hubot', new Helper('../scripts/script.js'));
 ```
 
 ### Writing the tests
@@ -130,7 +130,7 @@ chat.when('the user asks for a very complex answer')
 If the bot needs time to compute an answer, you can increase the waiting time by using:
 ```javascript
 // this delay will be used by default in all test scenarios
-const chat = new HubotChatTesting('hubot', new Helper('../scripts/orders.js'), {answerDelay: 50}); 
+const chat = new HubotChatTesting('hubot', new Helper('../scripts/detailed-help.js'), {answerDelay: 50}); 
 
 // this delay will be used in this specific test scenario
 chat.when('the user asks for a very complex answer', {answerDelay: 200}) 
@@ -169,6 +169,28 @@ chat.when('the user is asking for something very complex')
     })
     .expect('the bot should do it')
 ```
+
+##### Setting up the environment variables
+
+Sometimes our bot will behave differently depending on the value of any environment variables.
+If you would do it outside the beforeEach scope, it would set up the env variable with the same
+value for every test.
+In order to make this easy, there is a way to set up the variables using the library's API:
+```javascript
+    chat.when('we have set up the environment variable')
+        .setEnvironmentVariables({
+            MY_VARIABLE: 'my-value'
+        })
+        .user('alice').messagesBot('encourage Rex')
+        .bot.replyIncludes('Rex')
+        .additionalExpectations(() => {
+            expect(process.env.MY_VARIABLE).to.eql('my-value');
+        })
+        .expect('the library should properly set up it');
+```
+
+The library will revert the value after the testing is done, so it has no impact on other
+tests.
 
 ##### Additional configuration for the hubot-test-helper
 

@@ -27,6 +27,10 @@ class Chat {
             setRoomOptions: (roomOptions) => {
                 this.roomOptions = roomOptions;
                 return this.firstChain();
+            },
+            setEnvironmentVariables: (variables) => {
+                this.environmentVariables = variables;
+                return this.firstChain();
             }
         };
         return Object.assign({}, mainChain, result);
@@ -155,6 +159,7 @@ class Chat {
             describe(context, function () {
                 beforeEach(function () {
                     test_worker_1.TestWorker.prepareTest(this, self.helper, self.roomOptions);
+                    this.envVariablesToClear = test_worker_1.TestWorker.setupEnvironmentVariables(this, self.environmentVariables);
                     if (self.settingBrainFunction != null) {
                         this.logger.debug(`Starting user-defined function that sets up the robot's brain...`);
                         self.settingBrainFunction(this.room.robot.brain);
@@ -163,7 +168,7 @@ class Chat {
                     return test_worker_1.TestWorker.addUserMessages(this, self.userMessages);
                 });
                 afterEach(function () {
-                    test_worker_1.TestWorker.finishTest(this);
+                    test_worker_1.TestWorker.finishTest(this, this.envVariablesToClear);
                 });
                 it(summary, function () {
                     this.logger.debug(`Running test '${context} ${summary}'. Messages in chat (${this.room.messages.length}):\n${JSON.stringify(this.room.messages)}`);

@@ -11,7 +11,25 @@ export class TestWorker{
         test.logger.debug(`Created room with options: ${JSON.stringify(roomOptions)}`)
     }
 
-    static finishTest(test: any){
+    static setupEnvironmentVariables(test: any, environmentVariables?: {[key: string]: string}): {[key: string]: string | undefined}{
+        let result: any = {};
+        if(environmentVariables){
+            test.logger.debug(`Setting up environment variables: ${JSON.stringify(environmentVariables)}`);
+            for(const variable of Object.keys(environmentVariables)){
+                result[variable] = process.env[variable] || null;
+                process.env[variable] = environmentVariables[variable];
+            }
+        }
+        return result;
+    }
+
+    static finishTest(test: any, environmentVariables?: {[key: string]: string}){
+        if(environmentVariables){
+            test.logger.debug(`Reverting the environment variables to its previous state: ${JSON.stringify(environmentVariables)}`);
+            for(const variable of Object.keys(environmentVariables)){
+                process.env[variable] = environmentVariables[variable];
+            }
+        }
         test.room.destroy();
     }
 

@@ -11,6 +11,7 @@ export declare class Chat {
     private readonly helper;
     private roomOptions?;
     private options;
+    private environmentVariables?;
     private readonly brainExpectations;
     constructor(robotName: string, helper: any, options: HubotChatOptions);
     startChain(context: string): FirstChatChain;

@@ -30,6 +30,7 @@ export interface FinishingStep {
 export interface FirstChatChain extends MainChatChain {
     setRoomOptions: (options: any) => FirstChatChain;
     setBrain: (f: (brain: any) => void) => FirstChatChain;
+    setEnvironmentVariables: (variables: {[key: string]: string}) => FirstChatChain;
 }
 
 export interface BrainChain extends FinishingStep {

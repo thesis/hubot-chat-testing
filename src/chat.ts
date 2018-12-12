@@ -21,6 +21,7 @@ export class Chat {
     private readonly helper: any;
     private roomOptions?: any;
     private options: HubotChatOptions;
+    private environmentVariables?: {[key: string]: string};
     private readonly brainExpectations: BrainExpectations;
     
     constructor(robotName: string, helper: any, options: HubotChatOptions){
@@ -46,6 +47,10 @@ export class Chat {
             },
             setRoomOptions: (roomOptions: any) => {
                 this.roomOptions = roomOptions;
+                return this.firstChain();
+            },
+            setEnvironmentVariables: (variables: {[key: string]: string}) => {
+                this.environmentVariables = variables;
                 return this.firstChain();
             }
         };
@@ -187,6 +192,7 @@ export class Chat {
             describe(context, function() {
                 beforeEach(function() {
                     TestWorker.prepareTest(this, self.helper, self.roomOptions);
+                    this.envVariablesToClear = TestWorker.setupEnvironmentVariables(this, self.environmentVariables);
                     if(self.settingBrainFunction != null){
                         this.logger.debug(`Starting user-defined function that sets up the robot's brain...`);
                         self.settingBrainFunction(this.room.robot.brain);
@@ -196,7 +202,7 @@ export class Chat {
                 });
 
                 afterEach(function() {
-                    TestWorker.finishTest(this);
+                    TestWorker.finishTest(this, this.envVariablesToClear);
                 });
 
                 it(summary, function() {

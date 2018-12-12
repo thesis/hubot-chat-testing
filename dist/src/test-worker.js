@@ -9,7 +9,24 @@ class TestWorker {
         test.logger = test.room.robot.logger;
         test.logger.debug(`Created room with options: ${JSON.stringify(roomOptions)}`);
     }
-    static finishTest(test) {
+    static setupEnvironmentVariables(test, environmentVariables) {
+        let result = {};
+        if (environmentVariables) {
+            test.logger.debug(`Setting up environment variables: ${JSON.stringify(environmentVariables)}`);
+            for (const variable of Object.keys(environmentVariables)) {
+                result[variable] = process.env[variable] || null;
+                process.env[variable] = environmentVariables[variable];
+            }
+        }
+        return result;
+    }
+    static finishTest(test, environmentVariables) {
+        if (environmentVariables) {
+            test.logger.debug(`Reverting the environment variables to its previous state: ${JSON.stringify(environmentVariables)}`);
+            for (const variable of Object.keys(environmentVariables)) {
+                process.env[variable] = environmentVariables[variable];
+            }
+        }
         test.room.destroy();
     }
     static addUserMessages(test, userMessages) {
