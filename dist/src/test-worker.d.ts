@@ -7,7 +7,7 @@ export declare class TestWorker {
     }): {
         [key: string]: string | undefined;
     };
-    static finishTest(test: any, environmentVariables?: {
+    static finishTest(test: any, environmentVariables: {
         [key: string]: string;
     }): void;
     static addUserMessages(test: any, userMessages: ChatMessage[]): any;
