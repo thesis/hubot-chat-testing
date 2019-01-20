@@ -218,4 +218,4 @@ If you want to contribute, just fork the project and add some changes!
 
 ## Errors and ideas to improve
 If you will find any errors with this library or have great idea how to improve it (and dont want to do it on your own),
-please feel free to open [a new ticket](https://gitlab.com/TheDeeM/hubot-chat-testing/issues). 
+please feel free to open [a new ticket](https://gitlab.com/hubot-scripts/hubot-chat-testing/issues). 
