@@ -17,13 +17,12 @@
     "node": ">=8.x",
     "npm": ">=5.x"
   },
-  "homepage" : "https://gitlab.com/hubot-scripts/hubot-chat-testing",
-  "bugs" : "https://gitlab.com/hubot-scripts/hubot-chat-testing/issues",
+  "homepage": "https://gitlab.com/hubot-scripts/hubot-chat-testing",
+  "bugs": "https://gitlab.com/hubot-scripts/hubot-chat-testing/issues",
   "repository": "git@gitlab.com:hubot-scripts/hubot-chat-testing.git",
   "dependencies": {
     "chai": "^4.2.0",
     "co": "^4.6.0",
-    "coffeescript": "^2.2.2",
     "coveralls": "^3.0.2",
     "hubot": "3.1.1",
     "hubot-test-helper": "^1.8.1",
@@ -36,7 +35,8 @@
   "devDependencies": {
     "dotenv": "^6.1.0",
     "mocha": "5.2.0",
-    "nyc": "^13.1.0",
+    "tap": "12.1.2",
+    "nyc": "13.1.0",
     "hubot-encourage": "1.0.2",
     "hubot-sayings": "1.0.0"
   },
@@ -44,6 +44,6 @@
     "prepublish": "npm run build",
     "build": "tsc",
     "shell": "node -r dotenv/config node_modules/hubot/bin/hubot.js -a shell",
-    "test": "nyc --reporter=html --reporter=text mocha"
+    "test": "nyc --reporter=html --reporter=text mocha --exit && tap --coverage-report=text-summary"
   }
 }

@@ -1,0 +1,15 @@
+image: node:11.7
+
+cache:
+  paths:
+  - node_modules/
+
+test-package:
+  stage: test
+  script:
+  - npm install
+  - npm run test
+  artifacts:
+    paths:
+    - coverage/
+    expire_in: 30 days
