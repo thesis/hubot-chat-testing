@@ -111,7 +111,7 @@ export class TestWorker{
     }
 
     private static createDelayForRobot(delay: number, test: any){
-        return new Promise(function(resolve) {
+        return new Promise<void>(function(resolve) {
             test.logger.debug(`Creating a delay for the robot to respond - ${delay} ms`);
             setTimeout(function () {resolve();}, delay);
         });

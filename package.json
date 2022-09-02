@@ -1,5 +1,5 @@
 {
-  "name": "hubot-chat-testing",
+  "name": "@thesis-co/hubot-chat-testing",
   "description": "A simple suite for making the tests more straight-forward and easier to read",
   "version": "1.0.2",
   "author": "Dorian Krefft <dorian.krefft@gmail.com>",
@@ -17,28 +17,28 @@
     "node": ">=8.x",
     "npm": ">=5.x"
   },
-  "homepage": "https://gitlab.com/hubot-scripts/hubot-chat-testing",
-  "bugs": "https://gitlab.com/hubot-scripts/hubot-chat-testing/issues",
-  "repository": "git@gitlab.com:hubot-scripts/hubot-chat-testing.git",
+  "homepage": "https://github.com/thesis/hubot-chat-testing",
+  "bugs": "https://github.com/thesis/hubot-chat-testing/issues",
+  "repository": "git@github.com:thesis/hubot-chat-testing.git",
   "dependencies": {
-    "chai": "^4.2.0",
+    "chai": "^4.3.6",
     "co": "^4.6.0",
     "coveralls": "^3.0.2",
-    "hubot": "3.1.1",
-    "hubot-test-helper": "^1.8.1",
-    "@types/chai": "^4.1.7",
-    "@types/node": "10.12.11",
-    "@types/mocha": "5.2.5",
-    "typescript": "^3.2.1",
-    "ts-node": "^7.0.1"
+    "hubot": "^3.3.2",
+    "hubot-test-helper": "^1.9.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.2"
   },
   "devDependencies": {
-    "dotenv": "^6.1.0",
-    "mocha": "5.2.0",
-    "tap": "12.1.2",
-    "nyc": "13.1.0",
+    "@types/chai": "^4.3.3",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.7.14",
+    "dotenv": "^16.0.2",
     "hubot-encourage": "1.0.2",
-    "hubot-sayings": "1.0.0"
+    "hubot-sayings": "1.0.3",
+    "mocha": "10.0.0",
+    "nyc": "15.1.0",
+    "tap": "16.3.0"
   },
   "scripts": {
     "prepublish": "npm run build",
