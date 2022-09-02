@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Chat = void 0;
 const chat_messages_1 = require("./chat-messages");
 const chain_interfaces_1 = require("./chain-interfaces");
 const test_worker_1 = require("./test-worker");
@@ -33,7 +34,7 @@ class Chat {
                 return this.firstChain();
             }
         };
-        return Object.assign({}, mainChain, result);
+        return Object.assign(Object.assign({}, mainChain), result);
     }
     ;
     mainChain() {
@@ -44,7 +45,7 @@ class Chat {
             },
             bot: this.botChain()
         };
-        return Object.assign({}, brainChain, mainChain);
+        return Object.assign(Object.assign({}, brainChain), mainChain);
     }
     finishingChain() {
         return {
@@ -94,7 +95,7 @@ class Chat {
                 }
             }
         };
-        return Object.assign({}, mainChain, result);
+        return Object.assign(Object.assign({}, mainChain), result);
     }
     userChain(username) {
         return {
@@ -125,7 +126,7 @@ class Chat {
         const result = {
             brain: {
                 key: (key) => {
-                    return Object.assign({}, brainExpectations(false, key), { not: brainExpectations(true, key) });
+                    return Object.assign(Object.assign({}, brainExpectations(false, key)), { not: brainExpectations(true, key) });
                 },
                 not: {
                     contains: (key) => {
@@ -135,7 +136,7 @@ class Chat {
                 }
             }
         };
-        return Object.assign({}, finishingStep, result);
+        return Object.assign(Object.assign({}, finishingStep), result);
     }
     addUserMessage(username, message, delay) {
         const botDelay = delay || this.options.answerDelay;

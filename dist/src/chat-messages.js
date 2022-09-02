@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.BotMessage = exports.BotMessageExpectations = exports.ChatMessage = exports.SimpleMessage = void 0;
 class SimpleMessage {
     constructor(user, message) {
         this.user = user;

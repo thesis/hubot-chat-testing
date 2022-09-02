@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TestWorker = void 0;
 const chat_messages_1 = require("./chat-messages");
 const chai_1 = require("chai");
 const co = require('co');
@@ -41,12 +42,12 @@ class TestWorker {
         let index = 0;
         for (const userMessage of userMessages) {
             const expectedMessage = { user: userMessage.user, message: userMessage.message };
-            chai_1.expect(actualMessages.length).to.be.greaterThan(index, `Could not find user message '${expectedMessage.message}' in the chat history`);
+            (0, chai_1.expect)(actualMessages.length).to.be.greaterThan(index, `Could not find user message '${expectedMessage.message}' in the chat history`);
             const message = { user: actualMessages[index][0], message: actualMessages[index][1] };
             index++;
             const botReplies = TestWorker.findBotRepliesToMessage(message, botMessages);
             for (const botReply of botReplies) {
-                chai_1.expect(actualMessages.length).to.be.greaterThan(index, `Could not find bot reply in the chat history for message '${expectedMessage.message}'`);
+                (0, chai_1.expect)(actualMessages.length).to.be.greaterThan(index, `Could not find bot reply in the chat history for message '${expectedMessage.message}'`);
                 const reply = { user: actualMessages[index][0], message: actualMessages[index][1] };
                 TestWorker.compareBotReplyWithMessage(reply, botReply);
                 index++;
@@ -62,7 +63,7 @@ class TestWorker {
     }
     static performBrainContainsExpectations(brain, containExpectations) {
         for (const expectation of containExpectations) {
-            chai_1.expect(brain.get(expectation)).to.not.exist;
+            (0, chai_1.expect)(brain.get(expectation)).to.not.exist;
         }
     }
     static performBrainObjectExpectations(brain, expectations, type) {
@@ -73,18 +74,18 @@ class TestWorker {
             switch (type) {
                 case 'equals':
                     if (reverted) {
-                        chai_1.expect(actualValue).to.not.deep.eq(expectedValue, 'The object in bot\'s brain should not equal expected value');
+                        (0, chai_1.expect)(actualValue).to.not.deep.eq(expectedValue, 'The object in bot\'s brain should not equal expected value');
                     }
                     else {
-                        chai_1.expect(actualValue).to.deep.eq(expectedValue, 'The object in bot\'s brain is not the same as expected value');
+                        (0, chai_1.expect)(actualValue).to.deep.eq(expectedValue, 'The object in bot\'s brain is not the same as expected value');
                     }
                     break;
                 case 'includes':
                     if (reverted) {
-                        chai_1.expect(actualValue).to.not.include(expectedValue, 'The object in bot\s brain should not include expected value');
+                        (0, chai_1.expect)(actualValue).to.not.include(expectedValue, 'The object in bot\s brain should not include expected value');
                     }
                     else {
-                        chai_1.expect(actualValue).to.include(expectedValue, 'The object in bot\s brain does not include expected value');
+                        (0, chai_1.expect)(actualValue).to.include(expectedValue, 'The object in bot\s brain does not include expected value');
                     }
                     break;
             }
@@ -106,17 +107,17 @@ class TestWorker {
         return result;
     }
     static compareBotReplyWithMessage(message, botReply) {
-        chai_1.expect(message.user).to.eql(botReply.name, 'The message should be written by bot, but it is not');
+        (0, chai_1.expect)(message.user).to.eql(botReply.name, 'The message should be written by bot, but it is not');
         for (const expectation of botReply.messages) {
             switch (expectation.type) {
                 case chat_messages_1.BotMessageExpectations.EQUAL:
-                    chai_1.expect(message.message).to.eql(expectation.expectation, 'The message written by bot does not equal the message in the history');
+                    (0, chai_1.expect)(message.message).to.eql(expectation.expectation, 'The message written by bot does not equal the message in the history');
                     break;
                 case chat_messages_1.BotMessageExpectations.MATCH:
-                    chai_1.expect(message.message).to.match(new RegExp(expectation.expectation), 'The message written by bot does not match provided regexp');
+                    (0, chai_1.expect)(message.message).to.match(new RegExp(expectation.expectation), 'The message written by bot does not match provided regexp');
                     break;
                 case chat_messages_1.BotMessageExpectations.INCLUDE:
-                    chai_1.expect(message.message).to.include(expectation.expectation, 'The message written by bot does not include provided message part');
+                    (0, chai_1.expect)(message.message).to.include(expectation.expectation, 'The message written by bot does not include provided message part');
                     break;
             }
         }
